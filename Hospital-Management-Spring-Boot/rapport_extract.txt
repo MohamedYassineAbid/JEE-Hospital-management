@@ -1,0 +1,275 @@
+Année : 2021/2022
+
+Compte rendu
+Application web JEE, Gestion
+d'un hopital
+Filière :
+Méthodes Informatiques Appliquées à la Gestion
+des Entreprises
+Realisée par
+
+Encadré par
+
+Loubna Talha
+
+M. Youssfi Mohammed
+
+Sommaire:
+
+Sujet
+Annotations et mots clés
+Dependances
+Structure de projet
+Les Entités
+Déployer le data source
+Couche DAO avec Spring data
+Repositories
+Couche Web
+Controleurs
+Vues
+Authentification SPRING SECURITY
+
+Sujet
+
+L’objectif principal consiste à concevoir et réaliser une application web dynamique avec
+le Framework Spring qui permet la gestion d’un hôpital. Les données sont stockées
+dans une base de données MySQL
+L’application se compose de trois couches :
+La couche DAO qui est basée sur Spring Data, JPA, Hibernate et JDBC.
+La couche Métier
+La couche Web basée sur MVC coté Serveur en utilisant Thymeleaf.
+La sécurité est basée sur Spring Security
+
+Annotations et mots clés
+
+​
+
+Injection de dépendance
+
+Permet d'implémenter le principe de
+l'inversion de contrôle
+
+Inversion de
+contrôle
+
+​
+
+JDBC
+
+=> découpler les
+dépendances
+
+API qui permet d’utiliser les bases de
+données relationnelles
+
+(Java Data Base Connection)
+​
+​
+​
+
+Mapping Objet Relationnel
+(ORM)
+
+​
+
+géré l’accès aux données
+
+​
+​
+
+Object-Relational Mapping
+
+​
+
+Hibernate
+
+​
+JPA (Java Persistance API)
+
+​
+
+Spring Data
+
+​
+
+Spring Data JPA
+
+​
+
+Lombok
+
+​
+
+Spring Web
+
+​
+
+H2 Database
+
+​
+
+Un ORM qui implémente la
+spécification JPA
+
+Un API qui repose essentiellement sur
+l'utilisation des annotations
+
+​ n module de Spring qui facilite l’utilisation
+U
+de JPA
+Fait l’ORM basé sur JPA
+
+Permet de générer les getters et les setters
+
+Spring mvc
+
+​
+
+SGBD à mémoire
+
+(les données sont perdus apres chaque
+redémarrage)
+​
+
+application.properties
+
+​
+
+Entities
+
+​
+
+fichier de configuration de l’application
+
+Package qui contient les classes qui vont etre
+par la suite des tables dans la bd
+
+​
+
+@Data
+
+​
+
+@ Entity
+
+​
+
+@ID
+
+​
+
+repositories
+
+​
+​
+
+annotation de Lombok
+=> gener les getters et setters et
+constructeurs
+
+=>annotation essentiel pour une classe pour
+devenir une entité JPA
+
+Primary key
+=>annotation essentiel pour une classe pour
+devenir une entité JPA
+​ ackage qui contient des interfaces qui hérite
+P
+de l’interface JpaRepository
+​
+=> permet d’utiliser JPA
+​
+​
+
+@Query
+
+Annotation qui dit a SpringData comment
+interprète la fonction
+=>Utilise HQL (Hibernate query language)
+
+@Bean
+
+Dit a Spring d’exécuter celle-ci au démarrage
+
+BindingResult
+
+informations sur les erreurs de validation
+
+@Valid
+
+Hibernate va utiliser les annotations de
+validations (comme @Min et @NotEmpty)
+avant d’exécuter les requêtes sql
+
+@configuration
+
+Dependances
+
+Dit a Spring que cette classe doit être
+instancier au premier lieu
+
+Structure de projet
+
+Les Entités
+
+Dans l’application demandée on trouve tout 4 associations possible:
+@OneToMany
+
+@ManyToOne
+
+@ManyToMany
+
+@OneToOne
+
+Déployer le data source
+Le fichier de configuration ‘application.properties’
+
+Couche DAO avec Spring data
+1. On a créer un package Repository
+2. On a declaré pour chaque entité une interface EntityRepository qui hérite de
+l’interface générique JpaRepository
+3. On a declarer les signatures des méthodes en respectant les règles de l'écriture
+pour récupérer les données sans avoir besoin de les implémenter grâce à Spring
+Boot
+
+Repositories
+Les interfaces Repositories
+
+Couche Web
+
+Controleurs
+Une classe qui gère les requêtes http
+La route ‘/user/index est liée à la méthode patients() elle va être appelée
+lorsqu’une requête de type GET est envoyée
+
+Vues
+On a travaillée avec le moteur de template thymeleaf
+
+On ajout le dialect thyemeleaf
+
+Exemple d’une vue
+
+La methode save() reçoit les paramètres suivant: un objet de type Patient,
+quel page, sa taille et le keyword de la recherche
+
+Authentification SPRING SECURITY
+Interface SecurityService qui contient la déclaration des signatures des
+méthodes qui concerne les utilisateurs et des rôles:
+
+La classe suivant est une classe qui va servir à la configuration de Spring
+Security, elle hérite de la classe WebSecurityConfigurerAdapter
+
+Contient La méthode suivante, configurée avec
+AuthenticationManagerBuilder qui va servir pour préciser quel stratégie que
+vous voulez utiliser afin que spring security l’utilise pour chercher
+l'utilisateur
+
+La méthode suivante prend comme paramètre HttpSecurity et va servir a
+spécifier les droits d’accès
+
+La méthode suivante retourne un PasswordEncoder qui va servir a
+encoder les mots de passes
+
+Le résultat est un mot de passe difficile déchiffrer
+
+

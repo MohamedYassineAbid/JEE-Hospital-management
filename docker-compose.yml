@@ -1,0 +1,50 @@
+services:
+  db:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: PATIENT
+    ports:
+      - "3302:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    image: maven:3.8.7-eclipse-temurin-8
+    working_dir: /workspace/backend
+    volumes:
+      - ./Hospital-Management-Spring-Boot:/workspace/backend
+      - maven_cache:/root/.m2
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/PATIENT?createDatabaseIfNotExist=true
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+    command: sh -c "sleep 10; ./mvnw spring-boot:run"
+    ports:
+      - "8086:8086"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  frontend:
+    image: node:20
+    working_dir: /workspace/frontend
+    volumes:
+      - ./hospital-frontend:/workspace/frontend
+    environment:
+      CHOKIDAR_USEPOLLING: "true"
+      WATCHPACK_POLLING: "true"
+    command: sh -c "npm install && npm start -- --host 0.0.0.0 --port 4200"
+    ports:
+      - "4200:4200"
+    depends_on:
+      - backend
+
+volumes:
+  mysql_data:
+  maven_cache:
