@@ -1,52 +1,48 @@
 <div class="container-fluid">
   <div class="d-flex justify-content-between align-items-center mb-4">
-    <h2><i class="bi bi-people-fill text-primary"></i> Gestion des Patients</h2>
+    <h2><i class="bi bi-people-fill text-primary"></i> Patient Management</h2>
     <button class="btn btn-primary" (click)="openModal()">
-      <i class="bi bi-plus-circle"></i> Nouveau Patient
+      <i class="bi bi-plus-circle"></i> New Patient
     </button>
   </div>
 
   <div class="card shadow-sm">
     <div class="card-body">
-      <!-- Search Form -->
       <form class="d-flex mb-3 w-50" (ngSubmit)="onSearch()">
         <div class="input-group">
           <span class="input-group-text bg-white"><i class="bi bi-search text-muted"></i></span>
-          <input type="text" class="form-control border-start-0 ps-0" placeholder="Chercher par nom..." 
+          <input type="text" class="form-control border-start-0 ps-0" placeholder="Search by name..." 
                  name="keyword" [(ngModel)]="keyword" (keyup.enter)="onSearch()">
-          <button class="btn btn-outline-primary" type="submit">Chercher</button>
+          <button class="btn btn-outline-primary" type="submit">Search</button>
         </div>
       </form>
 
-      <!-- Table Section -->
       <div class="table-responsive" *ngIf="patientsPage && patientsPage.content.length > 0; else noData">
         <table class="table table-hover align-middle">
           <thead class="table-light">
             <tr>
               <th>ID</th>
-              <th>Nom</th>
-              <th>Date de Naissance</th>
-              <th>Malade</th>
-              <th>Adresse</th>
-              <th>Téléphone</th>
+              <th>Name</th>
+              <th>Birth Date</th>
+              <th>Status</th>
+              <th>Contact</th>
               <th class="text-end">Actions</th>
             </tr>
           </thead>
           <tbody>
             <tr *ngFor="let p of patientsPage.content">
               <td>#{{p.id}}</td>
+              <td class="fw-bold">{{p.title}} {{p.name}}</td>
+              <td><i class="bi bi-calendar3 me-2 text-muted"></i>{{p.birthDate | date:'mediumDate'}}</td>
               <td>
-                <span class="fw-bold">{{p.nom}}</span>
-                <span class="badge bg-secondary ms-2">{{p.titre}}</span>
-              </td>
-              <td>{{p.dateNaissance | date:'dd/MM/yyyy'}}</td>
-              <td>
-                <span class="badge" [ngClass]="p.malade ? 'bg-danger' : 'bg-success'">
-                  {{p.malade ? 'Oui' : 'Non'}}
+                <span class="badge rounded-pill" [ngClass]="p.sick ? 'bg-danger' : 'bg-success'">
+                  {{p.sick ? 'Sick' : 'Healthy'}}
                 </span>
               </td>
-              <td>{{p.adresse || '-'}}</td>
-              <td>{{p.numeroTelephone || '-'}}</td>
+              <td>
+                <div class="small text-muted"><i class="bi bi-telephone-fill me-1"></i> {{p.phoneNumber || 'N/A'}}</div>
+                <div class="small text-muted"><i class="bi bi-geo-alt-fill me-1"></i> {{p.address || 'N/A'}}</div>
+              </td>
               <td class="text-end">
                 <button class="btn btn-sm btn-outline-info me-2" title="Edit" (click)="openModal(p)">
                   <i class="bi bi-pencil-square"></i>
@@ -59,97 +55,95 @@
           </tbody>
         </table>
 
-        <!-- Pagination -->
         <nav class="d-flex justify-content-between align-items-center mt-3">
           <span class="text-muted small">Total: {{patientsPage.totalElements}} patients</span>
           <ul class="pagination pagination-sm mb-0">
             <li class="page-item" [class.disabled]="currentPage === 0">
-               <a class="page-link" href="javascript:void(0)" (click)="changePage(currentPage - 1)">Précédent</a>
+               <a class="page-link" href="javascript:void(0)" (click)="changePage(currentPage - 1)">Previous</a>
             </li>
             <li class="page-item" *ngFor="let _ of [].constructor(patientsPage.totalPages); let i = index" 
                 [class.active]="i === currentPage">
                <a class="page-link" href="javascript:void(0)" (click)="changePage(i)">{{i + 1}}</a>
             </li>
             <li class="page-item" [class.disabled]="currentPage === patientsPage.totalPages - 1 || patientsPage.totalPages === 0">
-               <a class="page-link" href="javascript:void(0)" (click)="changePage(currentPage + 1)">Suivant</a>
+               <a class="page-link" href="javascript:void(0)" (click)="changePage(currentPage + 1)">Next</a>
             </li>
           </ul>
         </nav>
       </div>
 
-      <!-- No Data Template -->
       <ng-template #noData>
         <div class="text-center py-5 text-muted">
-          <i class="bi bi-inbox fs-1 d-block mb-3"></i>
-          <h5>Aucun patient trouvé</h5>
-          <p>Essayez de modifier votre recherche ou ajoutez un nouveau patient.</p>
+          <i class="bi bi-people fs-1 d-block mb-3"></i>
+          <h5>No patients found</h5>
         </div>
       </ng-template>
     </div>
   </div>
 </div>
 
-<!-- Add/Edit Modal (Custom CSS driven to avoid bootstrap.js dependency for simplicity) -->
+<!-- Modal Form -->
 <div class="modal" tabindex="-1" [class.show]="showModal" [style.display]="showModal ? 'block' : 'none'" style="background: rgba(0,0,0,0.5)">
   <div class="modal-dialog modal-lg">
     <div class="modal-content border-0 shadow-lg">
       <div class="modal-header bg-primary text-white">
         <h5 class="modal-title m-0">
-          <i class="bi bi-person-lines-fill"></i> {{editingId ? 'Modifier Patient' : 'Nouveau Patient'}}
+          <i class="bi bi-person-plus-fill"></i> {{editingId ? 'Edit Patient' : 'New Patient'}}
         </h5>
         <button type="button" class="btn-close btn-close-white" (click)="closeModal()"></button>
       </div>
       <div class="modal-body p-4">
         <form [formGroup]="patientForm" (ngSubmit)="savePatient()">
           
-          <div class="row mb-3">
-            <div class="col-md-2">
-              <label class="form-label">Titre</label>
-              <select class="form-select" formControlName="titre">
-                <option value="Mr">Mr</option>
-                <option value="MMe">MMe</option>
+          <div class="row g-3 mb-3">
+            <div class="col-md-3">
+              <label class="form-label">Title</label>
+              <select class="form-select" formControlName="title">
+                <option value="MR">Mr.</option>
+                <option value="MRS">Mrs.</option>
+                <option value="MS">Ms.</option>
+                <option value="DR">Dr.</option>
               </select>
             </div>
-            <div class="col-md-5">
-              <label class="form-label">Nom Complet <span class="text-danger">*</span></label>
-              <input type="text" class="form-control" formControlName="nom">
-              <div class="text-danger small mt-1" *ngIf="patientForm.get('nom')?.invalid && patientForm.get('nom')?.touched">
-                Le nom est requis (3 à 10 caractères).
-              </div>
-            </div>
-            <div class="col-md-5">
-              <label class="form-label">Date de Naissance <span class="text-danger">*</span></label>
-              <input type="date" class="form-control" formControlName="dateNaissance">
+            <div class="col-md-9">
+              <label class="form-label">Full Name <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" formControlName="name">
             </div>
           </div>
 
-          <div class="row mb-3">
+          <div class="row g-3 mb-3">
             <div class="col-md-6">
-              <label class="form-label">Téléphone</label>
-              <input type="text" class="form-control" formControlName="numeroTelephone">
+              <label class="form-label">Birth Date <span class="text-danger">*</span></label>
+              <input type="date" class="form-control" formControlName="birthDate">
             </div>
-            <div class="col-md-6">
-              <label class="form-label">Code Postal</label>
-              <input type="text" class="form-control" formControlName="codePostal">
+            <div class="col-md-6 d-flex align-items-end pb-2">
+              <div class="form-check form-switch fs-5">
+                <input class="form-check-input" type="checkbox" role="switch" id="sickSwitch" formControlName="sick">
+                <label class="form-check-label fs-6 ms-2" for="sickSwitch">Is the patient currently sick?</label>
+              </div>
             </div>
           </div>
 
           <div class="mb-3">
-            <label class="form-label">Adresse</label>
-            <textarea class="form-control" rows="2" formControlName="adresse"></textarea>
+            <label class="form-label">Address</label>
+            <input type="text" class="form-control" formControlName="address">
           </div>
 
-          <div class="form-check form-switch mb-3 mt-4">
-            <input class="form-check-input" type="checkbox" role="switch" id="maladeSwitch" formControlName="malade">
-            <label class="form-check-label ms-2" for="maladeSwitch">
-              Le patient est-il actuellement malade ?
-            </label>
+          <div class="row g-3 mb-4">
+            <div class="col-md-6">
+              <label class="form-label">Zip Code</label>
+              <input type="text" class="form-control" formControlName="zipCode">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Phone Number</label>
+              <input type="tel" class="form-control" formControlName="phoneNumber">
+            </div>
           </div>
 
-          <div class="mt-4 text-end">
-            <button type="button" class="btn btn-light border me-2" (click)="closeModal()">Annuler</button>
+          <div class="text-end border-top pt-3">
+            <button type="button" class="btn btn-light border me-2" (click)="closeModal()">Cancel</button>
             <button type="submit" class="btn btn-primary px-4" [disabled]="patientForm.invalid">
-              <i class="bi bi-save me-1"></i> Enregistrer
+              <i class="bi bi-save me-1"></i> Save
             </button>
           </div>
         </form>

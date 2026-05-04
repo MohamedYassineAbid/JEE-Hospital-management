@@ -1,22 +1,41 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Patient, PageResponse } from '../models/patient.model';
-import { Medecin } from '../models/medecin.model';
-import { RendezVous } from '../models/rendezvous.model';
+import { Patient } from '../models/patient.model';
+import { Doctor } from '../models/doctor.model';
+import { Appointment } from '../models/appointment.model';
 import { Consultation } from '../models/consultation.model';
+import { environment } from '../../environments/environment';
+
+export interface PageResponse<T> {
+  content: T[];
+  totalPages: number;
+  totalElements: number;
+  size: number;
+  number: number;
+}
 
 @Injectable({
   providedIn: 'root'
 })
 export class ApiService {
-  private apiUrl = 'http://localhost:8086/api';
+  private apiUrl = environment.apiUrl;
 
   constructor(private http: HttpClient) { }
 
+  // Helper method for multi-tenancy params
+  private getParams(page: number, size: number, keyword?: string, hospitalId?: number, patientId?: number, doctorId?: number): HttpParams {
+    let params = new HttpParams().set('page', page).set('size', size);
+    if (keyword !== undefined && keyword !== null) params = params.set('keyword', keyword);
+    if (hospitalId) params = params.set('hospitalId', hospitalId);
+    if (patientId) params = params.set('patientId', patientId);
+    if (doctorId) params = params.set('doctorId', doctorId);
+    return params;
+  }
+
   // --- Patients ---
-  getPatients(page: number = 0, size: number = 5, keyword: string = ''): Observable<PageResponse<Patient>> {
-    const params = new HttpParams().set('page', page).set('size', size).set('keyword', keyword);
+  getPatients(page: number = 0, size: number = 5, keyword: string = '', hospitalId?: number): Observable<PageResponse<Patient>> {
+    const params = this.getParams(page, size, keyword, hospitalId);
     return this.http.get<PageResponse<Patient>>(`${this.apiUrl}/patients`, { params });
   }
 
@@ -35,47 +54,47 @@ export class ApiService {
     return this.http.delete<void>(`${this.apiUrl}/patients/${id}`);
   }
 
-  // --- Medecins ---
-  getMedecins(page: number = 0, size: number = 5, keyword: string = ''): Observable<PageResponse<Medecin>> {
-    const params = new HttpParams().set('page', page).set('size', size).set('keyword', keyword);
-    return this.http.get<PageResponse<Medecin>>(`${this.apiUrl}/medecins`, { params });
+  // --- Doctors ---
+  getDoctors(page: number = 0, size: number = 5, keyword: string = '', hospitalId?: number): Observable<PageResponse<Doctor>> {
+    const params = this.getParams(page, size, keyword, hospitalId);
+    return this.http.get<PageResponse<Doctor>>(`${this.apiUrl}/doctors`, { params });
   }
 
-  getMedecin(id: number): Observable<Medecin> {
-    return this.http.get<Medecin>(`${this.apiUrl}/medecins/${id}`);
+  getDoctor(id: number): Observable<Doctor> {
+    return this.http.get<Doctor>(`${this.apiUrl}/doctors/${id}`);
   }
 
-  saveMedecin(medecin: Medecin): Observable<Medecin> {
-    if (medecin.id) {
-      return this.http.put<Medecin>(`${this.apiUrl}/medecins/${medecin.id}`, medecin);
+  saveDoctor(doctor: Doctor): Observable<Doctor> {
+    if (doctor.id) {
+      return this.http.put<Doctor>(`${this.apiUrl}/doctors/${doctor.id}`, doctor);
     }
-    return this.http.post<Medecin>(`${this.apiUrl}/medecins`, medecin);
+    return this.http.post<Doctor>(`${this.apiUrl}/doctors`, doctor);
   }
 
-  deleteMedecin(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/medecins/${id}`);
+  deleteDoctor(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/doctors/${id}`);
   }
 
-  // --- Rendez-vous ---
-  getRendezVous(page: number = 0, size: number = 5): Observable<PageResponse<RendezVous>> {
-    const params = new HttpParams().set('page', page).set('size', size);
-    return this.http.get<PageResponse<RendezVous>>(`${this.apiUrl}/rendezvous`, { params });
+  // --- Appointments ---
+  getAppointments(page: number = 0, size: number = 5, hospitalId?: number, patientId?: number, doctorId?: number): Observable<PageResponse<Appointment>> {
+    const params = this.getParams(page, size, undefined, hospitalId, patientId, doctorId);
+    return this.http.get<PageResponse<Appointment>>(`${this.apiUrl}/appointments`, { params });
   }
 
-  saveRendezVous(rdv: RendezVous): Observable<RendezVous> {
-    if (rdv.id) {
-      return this.http.put<RendezVous>(`${this.apiUrl}/rendezvous/${rdv.id}`, rdv);
+  saveAppointment(appointment: Appointment): Observable<Appointment> {
+    if (appointment.id) {
+      return this.http.put<Appointment>(`${this.apiUrl}/appointments/${appointment.id}`, appointment);
     }
-    return this.http.post<RendezVous>(`${this.apiUrl}/rendezvous`, rdv);
+    return this.http.post<Appointment>(`${this.apiUrl}/appointments`, appointment);
   }
 
-  deleteRendezVous(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/rendezvous/${id}`);
+  deleteAppointment(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/appointments/${id}`);
   }
 
   // --- Consultations ---
-  getConsultations(page: number = 0, size: number = 5): Observable<PageResponse<Consultation>> {
-    const params = new HttpParams().set('page', page).set('size', size);
+  getConsultations(page: number = 0, size: number = 5, hospitalId?: number, patientId?: number, doctorId?: number): Observable<PageResponse<Consultation>> {
+    const params = this.getParams(page, size, undefined, hospitalId, patientId, doctorId);
     return this.http.get<PageResponse<Consultation>>(`${this.apiUrl}/consultations`, { params });
   }
 
@@ -88,5 +107,12 @@ export class ApiService {
 
   deleteConsultation(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/consultations/${id}`);
+  }
+
+  // --- Stats ---
+  getStats(hospitalId?: number): Observable<any> {
+    let params = new HttpParams();
+    if (hospitalId) params = params.set('hospitalId', hospitalId);
+    return this.http.get<any>(`${this.apiUrl}/stats/summary`, { params });
   }
 }

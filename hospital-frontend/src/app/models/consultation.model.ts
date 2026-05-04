@@ -1,8 +1,10 @@
-import { RendezVous } from './rendezvous.model';
+import { Appointment } from './appointment.model';
+import { Hospital } from './hospital.model';
 
 export interface Consultation {
-    id?: number;
-    dateConsultation: Date | string;
-    rapport: string;
-    rendezVous?: RendezVous;
+  id?: number;
+  consultationDate: string;
+  report: string;
+  appointment?: Appointment;
+  hospital?: Hospital;
 }

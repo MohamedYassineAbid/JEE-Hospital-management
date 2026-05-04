@@ -8,97 +8,112 @@ import { ApiService } from '../services/api.service';
   standalone: true,
   imports: [CommonModule, RouterModule],
   template: `
-    <div class="container-fluid">
-      <h2 class="mb-4"><i class="bi bi-speedometer2 text-primary"></i> Dashboard</h2>
-      
-      <div class="row g-4">
-        <div class="col-md-3">
-          <div class="card h-100 border-0 shadow-sm bg-gradient-primary text-body" style="border-left: 5px solid #0d6efd !important;">
-            <div class="card-body d-flex align-items-center justify-content-between">
-              <div>
-                <h6 class="text-muted mb-2 text-uppercase">Total Patients</h6>
-                <h2 class="mb-0 fw-bold">{{patientCount}}</h2>
+    <div class="container-fluid fade-in">
+      <div class="row g-4 mb-5">
+        <div class="col-md-3" *ngFor="let card of statCards">
+          <div class="card border-0 h-100 overflow-hidden">
+            <div class="card-body p-4">
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <div [class]="'bg-opacity-10 p-3 rounded-4 ' + card.bgClass">
+                  <i [class]="'bi ' + card.icon + ' fs-3 ' + card.textClass"></i>
+                </div>
+                <span class="badge rounded-pill bg-light text-dark border">+12%</span>
               </div>
-              <div class="fs-1 text-primary opacity-50"><i class="bi bi-people-fill"></i></div>
+              <h6 class="text-muted text-uppercase small fw-bold tracking-wider mb-1">{{card.title}}</h6>
+              <h2 class="display-6 fw-bold mb-0">{{card.value}}</h2>
             </div>
-            <div class="card-footer bg-white border-0 py-3">
-              <a routerLink="/patients" class="text-decoration-none text-primary">Voir tous les patients <i class="bi bi-arrow-right"></i></a>
+            <div class="px-4 pb-4 mt-auto">
+               <div class="progress" style="height: 6px;">
+                  <div [class]="'progress-bar ' + card.progressClass" role="progressbar" [style.width]="'70%'"></div>
+               </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="row">
+        <div class="col-md-8">
+          <div class="card border-0 mb-4">
+            <div class="card-header bg-transparent border-0 p-4 d-flex justify-content-between align-items-center">
+              <h5 class="fw-bold mb-0">System Performance</h5>
+              <button class="btn btn-sm btn-light border">Export Data</button>
+            </div>
+            <div class="card-body p-4 pt-0">
+              <div class="welcome-banner p-5 rounded-5 text-white mb-4" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                <div class="row align-items-center">
+                  <div class="col-md-7">
+                    <h2 class="fw-bold mb-3">Ready to optimize hospital flow?</h2>
+                    <p class="opacity-75 mb-4">You have 5 new appointment requests and 2 pending doctor validations today. Check the alerts to stay updated.</p>
+                    <button class="btn btn-white text-primary fw-bold px-4 rounded-pill">Take Action</button>
+                  </div>
+                  <div class="col-md-5 text-center d-none d-md-block">
+                    <i class="bi bi-rocket-takeoff display-1 opacity-50"></i>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
         
-        <div class="col-md-3">
-          <div class="card h-100 border-0 shadow-sm text-body" style="border-left: 5px solid #198754 !important;">
-            <div class="card-body d-flex align-items-center justify-content-between">
-              <div>
-                <h6 class="text-muted mb-2 text-uppercase">Médecins</h6>
-                <h2 class="mb-0 fw-bold">{{medecinCount}}</h2>
-              </div>
-              <div class="fs-1 text-success opacity-50"><i class="bi bi-file-medical"></i></div>
+        <div class="col-md-4">
+          <div class="card border-0">
+            <div class="card-header bg-transparent border-0 p-4">
+              <h5 class="fw-bold mb-0">Notifications</h5>
             </div>
-            <div class="card-footer bg-white border-0 py-3">
-              <a routerLink="/medecins" class="text-decoration-none text-success">Gérer l'équipe <i class="bi bi-arrow-right"></i></a>
-            </div>
-          </div>
-        </div>
-
-        <div class="col-md-3">
-          <div class="card h-100 border-0 shadow-sm text-body" style="border-left: 5px solid #ffc107 !important;">
-            <div class="card-body d-flex align-items-center justify-content-between">
-              <div>
-                <h6 class="text-muted mb-2 text-uppercase">Rendez-vous</h6>
-                <h2 class="mb-0 fw-bold">{{rdvCount}}</h2>
-              </div>
-              <div class="fs-1 text-warning opacity-50"><i class="bi bi-calendar-check pe-none"></i></div>
-            </div>
-            <div class="card-footer bg-white border-0 py-3">
-              <a routerLink="/rendezvous" class="text-decoration-none text-warning">Agenda <i class="bi bi-arrow-right"></i></a>
-            </div>
-          </div>
-        </div>
-
-        <div class="col-md-3">
-          <div class="card h-100 border-0 shadow-sm text-body" style="border-left: 5px solid #dc3545 !important;">
-            <div class="card-body d-flex align-items-center justify-content-between">
-              <div>
-                <h6 class="text-muted mb-2 text-uppercase">Consultations</h6>
-                <h2 class="mb-0 fw-bold">{{consultationCount}}</h2>
-              </div>
-              <div class="fs-1 text-danger opacity-50"><i class="bi bi-clipboard2-pulse"></i></div>
-            </div>
-            <div class="card-footer bg-white border-0 py-3">
-              <a routerLink="/consultations" class="text-decoration-none text-danger">Dossiers <i class="bi bi-arrow-right"></i></a>
-            </div>
-          </div>
-        </div>
-      </div>
-      
-      <div class="row mt-5">
-        <div class="col-md-12">
-            <div class="card shadow-sm border-0">
-                <div class="card-body py-5 text-center fade-in">
-                    <img src="assets/hospital-welcome.svg" alt="Welcome" class="img-fluid mb-4 opacity-50" style="max-height: 200px" onerror="this.style.display='none'">
-                    <h2>Bienvenue dans le système de gestion</h2>
-                    <p class="text-muted mx-auto" style="max-width: 600px;">Sélectionnez un élément dans le menu latéral pour commencer à gérer votre hôpital complet en toute simplicité et rapidité grâce à cette nouvelle interface moderne.</p>
+            <div class="card-body p-4 pt-0">
+              <div class="d-flex gap-3 mb-4" *ngFor="let note of notifications">
+                <div [class]="'rounded-circle p-2 d-flex align-items-center justify-content-center bg-opacity-10 ' + note.bg" style="width: 40px; height: 40px;">
+                  <i [class]="'bi ' + note.icon + ' ' + note.text"></i>
                 </div>
+                <div>
+                  <h6 class="small fw-bold mb-1">{{note.title}}</h6>
+                  <p class="text-muted tiny mb-0">{{note.time}}</p>
+                </div>
+              </div>
             </div>
+          </div>
         </div>
       </div>
     </div>
-  `
+  `,
+  styles: [`
+    .tracking-wider { letter-spacing: 0.1em; }
+    .tiny { font-size: 0.75rem; }
+    .bg-opacity-10 { background-color: rgba(var(--bs-primary-rgb), 0.1); }
+    .bg-primary-light { background-color: rgba(102, 126, 234, 0.1); }
+    .btn-white { background: white; border: none; }
+  `]
 })
 export class DashboardComponent implements OnInit {
-  patientCount = 0;
-  medecinCount = 0;
-  rdvCount = 0;
-  consultationCount = 0;
+  stats: any = {
+    totalPatients: 0,
+    totalDoctors: 0,
+    totalAppointments: 0,
+    totalConsultations: 0
+  };
+
+  statCards: any[] = [];
+  notifications = [
+    { title: 'New Patient Registered', time: '2 mins ago', icon: 'bi-person-plus', bg: 'bg-primary', text: 'text-primary' },
+    { title: 'Dr. Smith completed consultation', time: '1 hour ago', icon: 'bi-check2-circle', bg: 'bg-success', text: 'text-success' },
+    { title: 'Server backup successful', time: '3 hours ago', icon: 'bi-cloud-check', bg: 'bg-info', text: 'text-info' }
+  ];
 
   constructor(private api: ApiService) {}
 
   ngOnInit(): void {
-    this.api.getPatients(0, 1).subscribe(res => this.patientCount = res.totalElements);
-    this.api.getMedecins(0, 1).subscribe(res => this.medecinCount = res.totalElements);
-    this.api.getRendezVous(0, 1).subscribe(res => this.rdvCount = res.totalElements);
-    this.api.getConsultations(0, 1).subscribe(res => this.consultationCount = res.totalElements);
+    this.api.getStats().subscribe(res => {
+      this.stats = res;
+      this.updateCards();
+    });
+  }
+
+  updateCards() {
+    this.statCards = [
+      { title: 'Patients', value: this.stats.totalPatients, icon: 'bi-people-fill', bgClass: 'bg-primary', textClass: 'text-primary', progressClass: 'bg-primary' },
+      { title: 'Doctors', value: this.stats.totalDoctors, icon: 'bi-person-badge-fill', bgClass: 'bg-success', textClass: 'text-success', progressClass: 'bg-success' },
+      { title: 'Appointments', value: this.stats.totalAppointments, icon: 'bi-calendar-check', bgClass: 'bg-warning', textClass: 'text-warning', progressClass: 'bg-warning' },
+      { title: 'Consultations', value: this.stats.totalConsultations, icon: 'bi-clipboard-pulse', bgClass: 'bg-danger', textClass: 'text-danger', progressClass: 'bg-danger' }
+    ];
   }
 }

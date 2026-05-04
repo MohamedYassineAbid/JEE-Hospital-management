@@ -1,13 +1,13 @@
 package ma.fss.service;
 
+import ma.fss.entities.Appointment;
 import ma.fss.entities.Consultation;
-import ma.fss.entities.Medecin;
+import ma.fss.entities.Doctor;
 import ma.fss.entities.Patient;
-import ma.fss.entities.RendezVous;
 
-public interface IHopitalService {
+public interface IHospitalService {
     Patient savePatient(Patient patient);
-    Medecin saveMedecin(Medecin medecin);
-    RendezVous saveRendezVous(RendezVous rendezVous);
+    Doctor saveDoctor(Doctor doctor);
+    Appointment saveAppointment(Appointment appointment);
     Consultation saveConsultation(Consultation consultation);
 }

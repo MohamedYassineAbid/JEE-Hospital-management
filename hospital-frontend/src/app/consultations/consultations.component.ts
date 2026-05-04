@@ -1,10 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { ApiService } from '../services/api.service';
+import { ApiService, PageResponse } from '../services/api.service';
 import { Consultation } from '../models/consultation.model';
-import { RendezVous } from '../models/rendezvous.model';
-import { PageResponse } from '../models/patient.model';
+import { Appointment } from '../models/appointment.model';
+import { AuthService } from '../services/auth.service';
 
 @Component({
   selector: 'app-consultations',
@@ -18,27 +18,34 @@ export class ConsultationsComponent implements OnInit {
   currentPage = 0;
   pageSize = 5;
 
-  rendezvousList: RendezVous[] = [];
+  appointmentsList: Appointment[] = [];
 
   consultationForm!: FormGroup;
   showModal = false;
   editingId?: number;
 
-  constructor(private apiService: ApiService, private fb: FormBuilder) {
+  constructor(private apiService: ApiService, private fb: FormBuilder, private authService: AuthService) {
     this.consultationForm = this.fb.group({
-      dateConsultation: ['', Validators.required],
-      rapport: ['', Validators.required],
-      rendezVousId: ['', Validators.required]
+      consultationDate: ['', Validators.required],
+      report: ['', Validators.required],
+      appointmentId: ['', Validators.required]
     });
   }
 
   ngOnInit(): void {
     this.loadConsultations();
-    this.apiService.getRendezVous(0, 100).subscribe(data => this.rendezvousList = data.content);
+    this.apiService.getAppointments(0, 100).subscribe(data => this.appointmentsList = data.content);
   }
 
   loadConsultations(): void {
-    this.apiService.getConsultations(this.currentPage, this.pageSize).subscribe({
+    const ctx = this.authService.getUserContext();
+    this.apiService.getConsultations(
+      this.currentPage, 
+      this.pageSize, 
+      ctx?.userType === 'ADMIN' ? ctx.hospitalId : undefined,
+      ctx?.userType === 'PATIENT' ? ctx.patientId : undefined,
+      ctx?.userType === 'DOCTOR' ? ctx.doctorId : undefined
+    ).subscribe({
       next: (data) => this.consultationsPage = data,
       error: (err) => console.error(err)
     });
@@ -53,16 +60,16 @@ export class ConsultationsComponent implements OnInit {
     this.showModal = true;
     if (c) {
       this.editingId = c.id;
-      const d = new Date(c.dateConsultation);
+      const d = new Date(c.consultationDate);
       const strDate = d.toISOString().split('T')[0];
       this.consultationForm.patchValue({
-        dateConsultation: strDate,
-        rapport: c.rapport,
-        rendezVousId: c.rendezVous?.id || ''
+        consultationDate: strDate,
+        report: c.report,
+        appointmentId: c.appointment?.id || ''
       });
     } else {
       this.editingId = undefined;
-      this.consultationForm.reset({ rendezVousId: '' });
+      this.consultationForm.reset({ appointmentId: '' });
     }
   }
 
@@ -75,9 +82,9 @@ export class ConsultationsComponent implements OnInit {
     
     const val = this.consultationForm.value;
     const data: Consultation = {
-      dateConsultation: val.dateConsultation,
-      rapport: val.rapport,
-      rendezVous: val.rendezVousId ? { id: val.rendezVousId } as RendezVous : undefined,
+      consultationDate: val.consultationDate,
+      report: val.report,
+      appointment: val.appointmentId ? { id: val.appointmentId } as Appointment : undefined,
       id: this.editingId
     };
 
@@ -88,13 +95,13 @@ export class ConsultationsComponent implements OnInit {
       },
       error: (err) => {
         console.error(err);
-        alert(err.error?.message || 'Erreur lors de la sauvegarde de la consultation');
+        alert(err.error?.message || 'Error saving consultation');
       }
     });
   }
 
   deleteConsultation(id: number): void {
-    if (confirm('Supprimer cette consultation ?')) {
+    if (confirm('Delete this consultation?')) {
       this.apiService.deleteConsultation(id).subscribe({
         next: () => this.loadConsultations(),
         error: (err) => console.error(err)

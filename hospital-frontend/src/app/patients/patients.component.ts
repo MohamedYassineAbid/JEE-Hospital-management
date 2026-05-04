@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { ApiService } from '../services/api.service';
-import { Patient, PageResponse } from '../models/patient.model';
+import { ApiService, PageResponse } from '../services/api.service';
+import { Patient } from '../models/patient.model';
 
 @Component({
   selector: 'app-patients',
@@ -31,13 +31,13 @@ export class PatientsComponent implements OnInit {
 
   initForm(): void {
     this.patientForm = this.fb.group({
-      nom: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(10)]],
-      dateNaissance: ['', Validators.required],
-      malade: [false],
-      adresse: [''],
-      codePostal: [''],
-      numeroTelephone: [''],
-      titre: ['Mr']
+      name: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(50)]],
+      birthDate: ['', Validators.required],
+      sick: [false],
+      address: [''],
+      zipCode: [''],
+      phoneNumber: [''],
+      title: ['MR']
     });
   }
 
@@ -63,16 +63,16 @@ export class PatientsComponent implements OnInit {
     if (patient) {
       this.editingId = patient.id;
       // Format date for date input
-      const d = new Date(patient.dateNaissance);
+      const d = new Date(patient.birthDate);
       const strDate = d.toISOString().split('T')[0];
       
       this.patientForm.patchValue({
         ...patient,
-        dateNaissance: strDate
+        birthDate: strDate
       });
     } else {
       this.editingId = undefined;
-      this.patientForm.reset({ malade: false, titre: 'Mr' });
+      this.patientForm.reset({ sick: false, title: 'MR' });
     }
   }
 
@@ -98,7 +98,7 @@ export class PatientsComponent implements OnInit {
   }
 
   deletePatient(id: number): void {
-    if (confirm('Êtes-vous sûr de vouloir supprimer ce patient ?')) {
+    if (confirm('Are you sure you want to delete this patient?')) {
       this.apiService.deletePatient(id).subscribe({
         next: () => this.loadPatients(),
         error: (err) => console.error('Error deleting patient', err)

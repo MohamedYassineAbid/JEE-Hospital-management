@@ -1,18 +1,13 @@
-export interface Patient {
-    id?: number;
-    nom: string;
-    dateNaissance: Date | string;
-    malade: boolean;
-    adresse: string;
-    codePostal: string;
-    numeroTelephone: string;
-    titre: 'MMe' | 'Mr';
-}
+import { Hospital } from './hospital.model';
 
-export interface PageResponse<T> {
-    content: T[];
-    totalPages: number;
-    totalElements: number;
-    size: number;
-    number: number;
+export interface Patient {
+  id?: number;
+  name: string;
+  birthDate: string;
+  sick: boolean;
+  address: string;
+  zipCode: string;
+  phoneNumber: string;
+  title: string;
+  hospital?: Hospital;
 }

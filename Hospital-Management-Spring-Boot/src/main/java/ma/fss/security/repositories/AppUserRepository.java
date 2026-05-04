@@ -5,4 +5,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface AppUserRepository extends JpaRepository<AppUser,String> {
     AppUser findByUsername(String username);
+    AppUser findByEmail(String email);
+    long countByUsernameStartingWith(String prefix);
 }

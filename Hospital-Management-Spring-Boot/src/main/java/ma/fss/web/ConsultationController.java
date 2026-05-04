@@ -3,7 +3,6 @@ package ma.fss.web;
 import lombok.AllArgsConstructor;
 import ma.fss.entities.Consultation;
 import ma.fss.repositories.ConsultationRepository;
-import ma.fss.service.IHopitalService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
@@ -16,12 +15,24 @@ import javax.validation.Valid;
 @RequestMapping("/api/consultations")
 public class ConsultationController {
     private ConsultationRepository consultationRepository;
-    private IHopitalService hopitalService;
 
     @GetMapping
     public Page<Consultation> getConsultations(
+            @RequestParam(name = "hospitalId", required = false) Long hospitalId,
+            @RequestParam(name = "patientId", required = false) Long patientId,
+            @RequestParam(name = "doctorId", required = false) Long doctorId,
             @RequestParam(name = "page", defaultValue = "0") int page,
             @RequestParam(name = "size", defaultValue = "5") int size) {
+        
+        if (hospitalId != null) {
+            return consultationRepository.findByHospitalId(hospitalId, PageRequest.of(page, size));
+        }
+        if (patientId != null) {
+            return consultationRepository.findByAppointmentPatientId(patientId, PageRequest.of(page, size));
+        }
+        if (doctorId != null) {
+            return consultationRepository.findByAppointmentDoctorId(doctorId, PageRequest.of(page, size));
+        }
         return consultationRepository.findAll(PageRequest.of(page, size));
     }
 
@@ -35,7 +46,7 @@ public class ConsultationController {
     @PostMapping
     public Consultation createConsultation(@Valid @RequestBody Consultation consultation) {
         consultation.setId(null);
-        return hopitalService.saveConsultation(consultation);
+        return consultationRepository.save(consultation);
     }
 
     @PutMapping("/{id}")

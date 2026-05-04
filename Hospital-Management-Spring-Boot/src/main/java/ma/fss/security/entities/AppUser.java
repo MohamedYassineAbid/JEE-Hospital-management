@@ -18,8 +18,23 @@ public class AppUser {
     private String userId;
     @Column(unique = true)
     private String username;
+    @Column(unique = true)
+    private String email;
     private String password;
     private boolean active;
     @ManyToMany(fetch = FetchType.EAGER)
     private List<AppRole> appRoles = new ArrayList<>();
+
+    @Enumerated(EnumType.STRING)
+    private UserType userType;
+
+    // Profile fields
+    private String firstName;
+    private String lastName;
+    private String photoUrl;
+
+    // Optional relationships based on UserType
+    private Long hospitalId; // For ADMIN (which hospital they manage)
+    private Long doctorId;   // For DOCTOR (link to Doctor profile)
+    private Long patientId;  // For PATIENT (link to Patient profile)
 }

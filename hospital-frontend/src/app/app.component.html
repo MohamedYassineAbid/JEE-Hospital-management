@@ -1,52 +1,113 @@
-<div class="wrapper">
+<!-- Full Layout for Authenticated Pages -->
+<div class="d-flex" *ngIf="showLayout">
   <!-- Sidebar -->
   <nav id="sidebar">
-      <div class="sidebar-header">
-          <h4><i class="bi bi-hospital"></i> Hospital MS</h4>
-      </div>
+    <div class="sidebar-header text-center">
+      <h3 class="fw-bold"><i class="bi bi-hospital-fill me-2"></i>MediCore</h3>
+      <p class="text-muted small">Hospital System v1.0</p>
+    </div>
 
-      <ul class="list-unstyled components">
-          <li>
-              <a routerLink="/dashboard" routerLinkActive="active"><i class="bi bi-speedometer2"></i> Dashboard</a>
-          </li>
-          <li>
-              <a routerLink="/patients" routerLinkActive="active"><i class="bi bi-people"></i> Patients</a>
-          </li>
-          <li>
-              <a routerLink="/medecins" routerLinkActive="active"><i class="bi bi-file-medical"></i> Médecins</a>
-          </li>
-          <li>
-              <a routerLink="/consultations" routerLinkActive="active"><i class="bi bi-clipboard2-pulse"></i> Consultations</a>
-          </li>
-          <li>
-              <a routerLink="/rendezvous" routerLinkActive="active"><i class="bi bi-calendar-check"></i> Rendez-vous</a>
-          </li>
-      </ul>
+    <ul class="list-unstyled components mt-4">
+      <li>
+        <a routerLink="/dashboard" routerLinkActive="active">
+          <i class="bi bi-grid-1x2-fill"></i> Dashboard
+        </a>
+      </li>
+      
+      <!-- Only Admin sees Patients and Doctors list -->
+      <li *ngIf="userContext?.userType === 'ADMIN'">
+        <a routerLink="/patients" routerLinkActive="active">
+          <i class="bi bi-people-fill"></i> Patients
+        </a>
+      </li>
+      <li *ngIf="userContext?.userType === 'ADMIN'">
+        <a routerLink="/doctors" routerLinkActive="active">
+          <i class="bi bi-person-badge-fill"></i> Doctors
+        </a>
+      </li>
+
+      <!-- Everyone can see their own Consultations and Appointments -->
+      <li>
+        <a routerLink="/consultations" routerLinkActive="active">
+          <i class="bi bi-clipboard-pulse"></i> {{ userContext?.userType === 'PATIENT' ? 'My Consultations' : 'Consultations' }}
+        </a>
+      </li>
+      <li>
+        <a routerLink="/appointments" routerLinkActive="active">
+          <i class="bi bi-calendar2-event-fill"></i> {{ userContext?.userType === 'PATIENT' ? 'My Appointments' : 'Appointments' }}
+        </a>
+      </li>
+
+      <!-- Private Discussion - Mainly for Patients/Doctors -->
+      <li *ngIf="userContext?.userType !== 'ADMIN'">
+        <a routerLink="/discussions" routerLinkActive="active">
+          <i class="bi bi-chat-dots-fill"></i> Private Discussion
+        </a>
+      </li>
+
+      <!-- Profile link in sidebar -->
+      <li class="mt-3 pt-3 border-top">
+        <a routerLink="/profile" routerLinkActive="active">
+          <i class="bi bi-person-circle"></i> My Profile
+        </a>
+      </li>
+    </ul>
+
+    <div class="sidebar-footer position-absolute bottom-0 w-100 p-4">
+      <div class="card p-3 bg-white border-0 shadow-sm rounded-4">
+        <div class="d-flex align-items-center">
+          <div class="bg-primary-light p-2 rounded-3 me-3">
+             <i class="bi bi-shield-check text-primary"></i>
+          </div>
+          <div>
+            <p class="mb-0 fw-bold small">Secure System</p>
+            <p class="mb-0 text-muted tiny">AES Encrypted</p>
+          </div>
+        </div>
+      </div>
+    </div>
   </nav>
 
   <!-- Page Content -->
-  <div id="content" class="bg-light">
-      <nav class="navbar navbar-expand-lg navbar-light bg-white rounded shadow-sm mb-4">
-          <div class="container-fluid">
-              <span class="navbar-brand mb-0 h1 text-primary">Administration</span>
-              <div class="d-flex align-items-center">
-                  <div class="dropdown">
-                      <a class="nav-link dropdown-toggle text-dark" href="#" role="button" data-bs-toggle="dropdown">
-                          <i class="bi bi-person-circle fs-5 me-1"></i> Admin User
-                      </a>
-                      <ul class="dropdown-menu dropdown-menu-end shadow">
-                          <li><a class="dropdown-item" href="#"><i class="bi bi-gear"></i> Settings</a></li>
-                          <li><hr class="dropdown-divider"></li>
-                          <li><a class="dropdown-item text-danger" href="#"><i class="bi bi-box-arrow-right"></i> Logout</a></li>
-                      </ul>
-                  </div>
-              </div>
-          </div>
-      </nav>
+  <div id="content">
+    <header class="d-flex justify-content-between align-items-center mb-5 px-3">
+      <div>
+        <h4 class="fw-bold mb-0 text-dark">
+          {{ userContext?.userType === 'PATIENT' ? 'Patient Portal' : (userContext?.userType === 'DOCTOR' ? 'Doctor Portal' : 'Administration Dashboard') }}
+        </h4>
+        <p class="text-muted small mb-0">Welcome back, {{ getDisplayName() }}</p>
+      </div>
+      
+      <div class="d-flex align-items-center gap-3">
+        <div class="position-relative me-3">
+          <i class="bi bi-bell fs-5 text-muted"></i>
+          <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger border border-2 border-white" style="font-size: 0.5rem;">
+            3+
+          </span>
+        </div>
+        <div class="dropdown">
+          <button class="btn bg-white border-0 shadow-sm rounded-circle p-2" data-bs-toggle="dropdown">
+            <img [src]="getAvatarUrl()" class="rounded-circle" width="35" height="35" style="object-fit:cover">
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end border-0 shadow-lg mt-2 rounded-4">
+            <li>
+              <a class="dropdown-item p-3" routerLink="/profile"><i class="bi bi-person me-2"></i> Profile</a>
+            </li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item p-3 text-danger" href="javascript:void(0)" (click)="logout()"><i class="bi bi-box-arrow-right me-2"></i> Logout</a></li>
+          </ul>
+        </div>
+      </div>
+    </header>
 
-      <!-- Main Router Outlet -->
-      <main class="fade-in">
-          <router-outlet></router-outlet>
-      </main>
+    <!-- Main Router Outlet -->
+    <main class="fade-in">
+      <router-outlet></router-outlet>
+    </main>
   </div>
+</div>
+
+<!-- Standalone Router Outlet for Landing/Login Pages -->
+<div *ngIf="!showLayout">
+  <router-outlet></router-outlet>
 </div>
