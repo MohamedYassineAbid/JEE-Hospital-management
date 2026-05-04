@@ -1,0 +1,111 @@
+<div class="login-page">
+  <div class="login-container">
+    <!-- Left side: branding -->
+    <div class="login-branding">
+      <div class="branding-content">
+        <i class="bi bi-hospital"></i>
+        <h1>Hospital MS</h1>
+        <p>Management System</p>
+        <div class="branding-features">
+          <div class="feature-item">
+            <i class="bi bi-shield-check"></i>
+            <span>Secure Access</span>
+          </div>
+          <div class="feature-item">
+            <i class="bi bi-people"></i>
+            <span>Multi-Role Support</span>
+          </div>
+          <div class="feature-item">
+            <i class="bi bi-graph-up"></i>
+            <span>Real-time Dashboard</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right side: login form -->
+    <div class="login-form-wrapper">
+      <div class="login-form-inner">
+        <div class="form-header">
+          <h2>Welcome Back</h2>
+          <p class="text-muted">Sign in to your account</p>
+        </div>
+
+        <!-- Error Alert -->
+        <div class="alert alert-danger d-flex align-items-center" *ngIf="errorMessage">
+          <i class="bi bi-exclamation-triangle-fill me-2"></i>
+          <span>{{ errorMessage }}</span>
+        </div>
+
+        <form (ngSubmit)="onLogin()" class="login-form">
+          <div class="form-group">
+            <label for="username" class="form-label">
+              <i class="bi bi-person"></i> Username
+            </label>
+            <input
+              type="text"
+              id="username"
+              class="form-control form-control-lg"
+              placeholder="Enter your username"
+              [(ngModel)]="username"
+              name="username"
+              autocomplete="username"
+              [disabled]="isLoading"
+            >
+          </div>
+
+          <div class="form-group">
+            <label for="password" class="form-label">
+              <i class="bi bi-lock"></i> Password
+            </label>
+            <input
+              type="password"
+              id="password"
+              class="form-control form-control-lg"
+              placeholder="Enter your password"
+              [(ngModel)]="password"
+              name="password"
+              autocomplete="current-password"
+              [disabled]="isLoading"
+            >
+          </div>
+
+          <button
+            type="submit"
+            class="btn btn-primary btn-lg w-100 login-btn"
+            [disabled]="isLoading"
+          >
+            <span *ngIf="!isLoading">
+              <i class="bi bi-box-arrow-in-right me-2"></i>Sign In
+            </span>
+            <span *ngIf="isLoading">
+              <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+              Signing in...
+            </span>
+          </button>
+        </form>
+
+        <div class="demo-accounts">
+          <p class="demo-title"><i class="bi bi-info-circle"></i> Demo Accounts</p>
+          <div class="demo-grid">
+            <div class="demo-card" (click)="username='admin'; password='admin123'">
+              <i class="bi bi-shield-lock-fill text-primary"></i>
+              <strong>Admin</strong>
+              <small>admin / admin123</small>
+            </div>
+            <div class="demo-card" (click)="username='doctor'; password='doctor123'">
+              <i class="bi bi-heart-pulse-fill text-success"></i>
+              <strong>Doctor</strong>
+              <small>doctor / doctor123</small>
+            </div>
+            <div class="demo-card" (click)="username='patient'; password='patient123'">
+              <i class="bi bi-person-fill text-info"></i>
+              <strong>Patient</strong>
+              <small>patient / patient123</small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

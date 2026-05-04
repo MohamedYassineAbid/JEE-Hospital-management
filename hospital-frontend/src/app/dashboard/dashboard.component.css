@@ -1,0 +1,107 @@
+.welcome-header h2 {
+  font-weight: 700;
+  color: #1a1a2e;
+}
+
+/* Stat cards */
+.stat-card {
+  background: white;
+  border-radius: 14px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  transition: transform 0.2s, box-shadow 0.2s;
+  border-top: 3px solid var(--accent);
+}
+
+.stat-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+}
+
+.stat-card-body {
+  padding: 22px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.stat-info h6 {
+  color: #888;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 6px;
+}
+
+.stat-info h2 {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #1a1a2e;
+  margin: 0;
+}
+
+.stat-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+  color: var(--accent);
+}
+
+.stat-link {
+  display: block;
+  padding: 12px 20px;
+  background: #fafbfc;
+  color: var(--accent);
+  font-size: 0.82rem;
+  font-weight: 500;
+  text-decoration: none;
+  border-top: 1px solid #f0f0f0;
+  transition: background 0.15s;
+}
+
+.stat-link:hover {
+  background: #f0f4f8;
+}
+
+.stat-link i {
+  margin-left: 4px;
+  font-size: 0.75rem;
+}
+
+/* Welcome card */
+.welcome-card {
+  background: white;
+  border-radius: 14px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+}
+
+.welcome-card-body {
+  padding: 40px;
+  text-align: center;
+}
+
+.welcome-icon {
+  font-size: 3rem;
+  color: #1a73e8;
+  opacity: 0.3;
+  display: block;
+  margin-bottom: 16px;
+}
+
+.welcome-card-body h3 {
+  font-weight: 700;
+  color: #1a1a2e;
+  margin-bottom: 8px;
+}
+
+.welcome-card-body p {
+  max-width: 500px;
+  margin: 0 auto;
+  font-size: 0.92rem;
+}

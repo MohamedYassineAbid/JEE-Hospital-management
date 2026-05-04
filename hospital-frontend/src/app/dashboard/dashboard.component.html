@@ -1,1 +1,148 @@
-<p>dashboard works!</p>
+<div class="container-fluid">
+  <!-- Welcome header -->
+  <div class="welcome-header mb-4">
+    <h2><i class="bi bi-speedometer2 text-primary"></i> Dashboard</h2>
+    <p class="text-muted mb-0">Welcome back, <strong>{{ username }}</strong></p>
+  </div>
+  
+  <!-- ADMIN Dashboard -->
+  <div class="row g-4" *ngIf="role === 'ADMIN'">
+    <div class="col-md-6 col-lg-3">
+      <div class="stat-card" style="--accent: #1a73e8;">
+        <div class="stat-card-body">
+          <div class="stat-info">
+            <h6>Total Patients</h6>
+            <h2>{{ patientCount }}</h2>
+          </div>
+          <div class="stat-icon"><i class="bi bi-people-fill"></i></div>
+        </div>
+        <a routerLink="/patients" class="stat-link">View all patients <i class="bi bi-arrow-right"></i></a>
+      </div>
+    </div>
+    <div class="col-md-6 col-lg-3">
+      <div class="stat-card" style="--accent: #137333;">
+        <div class="stat-card-body">
+          <div class="stat-info">
+            <h6>Médecins</h6>
+            <h2>{{ medecinCount }}</h2>
+          </div>
+          <div class="stat-icon"><i class="bi bi-heart-pulse-fill"></i></div>
+        </div>
+        <a routerLink="/medecins" class="stat-link">Manage team <i class="bi bi-arrow-right"></i></a>
+      </div>
+    </div>
+    <div class="col-md-6 col-lg-3">
+      <div class="stat-card" style="--accent: #b06000;">
+        <div class="stat-card-body">
+          <div class="stat-info">
+            <h6>Rendez-vous</h6>
+            <h2>{{ rdvCount }}</h2>
+          </div>
+          <div class="stat-icon"><i class="bi bi-calendar-check-fill"></i></div>
+        </div>
+        <a routerLink="/rendezvous" class="stat-link">View schedule <i class="bi bi-arrow-right"></i></a>
+      </div>
+    </div>
+    <div class="col-md-6 col-lg-3">
+      <div class="stat-card" style="--accent: #c62828;">
+        <div class="stat-card-body">
+          <div class="stat-info">
+            <h6>Consultations</h6>
+            <h2>{{ consultationCount }}</h2>
+          </div>
+          <div class="stat-icon"><i class="bi bi-clipboard2-pulse-fill"></i></div>
+        </div>
+        <a routerLink="/consultations" class="stat-link">View records <i class="bi bi-arrow-right"></i></a>
+      </div>
+    </div>
+  </div>
+
+  <!-- DOCTOR Dashboard -->
+  <div class="row g-4" *ngIf="role === 'DOCTOR'">
+    <div class="col-md-6 col-lg-4">
+      <div class="stat-card" style="--accent: #1a73e8;">
+        <div class="stat-card-body">
+          <div class="stat-info">
+            <h6>Patients</h6>
+            <h2>{{ patientCount }}</h2>
+          </div>
+          <div class="stat-icon"><i class="bi bi-people-fill"></i></div>
+        </div>
+        <a routerLink="/patients" class="stat-link">View patients <i class="bi bi-arrow-right"></i></a>
+      </div>
+    </div>
+    <div class="col-md-6 col-lg-4">
+      <div class="stat-card" style="--accent: #b06000;">
+        <div class="stat-card-body">
+          <div class="stat-info">
+            <h6>Rendez-vous</h6>
+            <h2>{{ rdvCount }}</h2>
+          </div>
+          <div class="stat-icon"><i class="bi bi-calendar-check-fill"></i></div>
+        </div>
+        <a routerLink="/rendezvous" class="stat-link">View schedule <i class="bi bi-arrow-right"></i></a>
+      </div>
+    </div>
+    <div class="col-md-6 col-lg-4">
+      <div class="stat-card" style="--accent: #c62828;">
+        <div class="stat-card-body">
+          <div class="stat-info">
+            <h6>Consultations</h6>
+            <h2>{{ consultationCount }}</h2>
+          </div>
+          <div class="stat-icon"><i class="bi bi-clipboard2-pulse-fill"></i></div>
+        </div>
+        <a routerLink="/consultations" class="stat-link">View records <i class="bi bi-arrow-right"></i></a>
+      </div>
+    </div>
+  </div>
+
+  <!-- PATIENT Dashboard -->
+  <div class="row g-4" *ngIf="role === 'PATIENT'">
+    <div class="col-md-6">
+      <div class="stat-card" style="--accent: #b06000;">
+        <div class="stat-card-body">
+          <div class="stat-info">
+            <h6>My Rendez-vous</h6>
+            <h2>{{ rdvCount }}</h2>
+          </div>
+          <div class="stat-icon"><i class="bi bi-calendar-check-fill"></i></div>
+        </div>
+        <a routerLink="/rendezvous" class="stat-link">View my appointments <i class="bi bi-arrow-right"></i></a>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="stat-card" style="--accent: #1a73e8;">
+        <div class="stat-card-body">
+          <div class="stat-info">
+            <h6>My Consultations</h6>
+            <h2>{{ consultationCount }}</h2>
+          </div>
+          <div class="stat-icon"><i class="bi bi-clipboard2-pulse-fill"></i></div>
+        </div>
+        <a routerLink="/consultations" class="stat-link">View my records <i class="bi bi-arrow-right"></i></a>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Welcome section -->
+  <div class="row mt-4">
+    <div class="col-12">
+      <div class="welcome-card">
+        <div class="welcome-card-body">
+          <i class="bi bi-hospital welcome-icon"></i>
+          <h3>Hospital Management System</h3>
+          <p class="text-muted" *ngIf="role === 'ADMIN'">
+            You have full access to all system features. Use the sidebar to manage patients, doctors, appointments, and consultations.
+          </p>
+          <p class="text-muted" *ngIf="role === 'DOCTOR'">
+            View your patients, manage your appointments, and update consultation records from the sidebar.
+          </p>
+          <p class="text-muted" *ngIf="role === 'PATIENT'">
+            Check your upcoming appointments and view your consultation history from the sidebar.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
