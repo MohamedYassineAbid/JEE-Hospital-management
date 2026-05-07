@@ -1,68 +1,91 @@
-<!-- Show full layout only when logged in -->
-<div class="wrapper" *ngIf="isLoggedIn; else loginLayout">
-  <!-- Sidebar -->
-  <nav id="sidebar">
-      <div class="sidebar-header">
-          <i class="bi bi-hospital"></i>
-          <h4>Hospital MS</h4>
+<div class="app-wrapper" [class.full-layout]="!isLoggedIn || isAuthPage">
+  <!-- Light Sidebar -->
+  <aside class="main-sidebar shadow-sm" *ngIf="isLoggedIn && !isAuthPage">
+    <div class="sidebar-header px-4 py-5">
+      <div class="logo-wrapper">
+        <div class="pulse-container">
+          <svg viewBox="0 0 24 24" class="pulse-svg">
+            <path d="M2 12h3l2-5 4 10 2-5h3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <span class="logo-text">Dar Ettabib</span>
       </div>
+    </div>
+    
+    <nav class="sidebar-nav px-3">
+      <!-- Dashboard only for Doctor/Admin -->
+      <a *ngIf="role !== 'PATIENT'" routerLink="/dashboard" routerLinkActive="active" class="nav-link py-3 px-4 mb-2">
+        <i class="bi bi-grid-fill me-3"></i> Dashboard
+      </a>
 
-      <ul class="list-unstyled components">
-          <li *ngIf="canSee('dashboard')">
-              <a routerLink="/dashboard" routerLinkActive="active"><i class="bi bi-speedometer2"></i> Dashboard</a>
-          </li>
-          <li *ngIf="canSee('patients')">
-              <a routerLink="/patients" routerLinkActive="active"><i class="bi bi-people"></i> Patients</a>
-          </li>
-          <li *ngIf="canSee('medecins')">
-              <a routerLink="/medecins" routerLinkActive="active"><i class="bi bi-file-medical"></i> Médecins</a>
-          </li>
-          <li *ngIf="canSee('consultations')">
-              <a routerLink="/consultations" routerLinkActive="active"><i class="bi bi-clipboard2-pulse"></i> Consultations</a>
-          </li>
-          <li *ngIf="canSee('rendezvous')">
-              <a routerLink="/rendezvous" routerLinkActive="active"><i class="bi bi-calendar-check"></i> Rendez-vous</a>
-          </li>
-      </ul>
+      <a routerLink="/appointments" routerLinkActive="active" class="nav-link py-3 px-4 mb-2">
+        <i class="bi bi-calendar-event-fill me-3"></i> Appointments
+      </a>
+      <a routerLink="/consultations" routerLinkActive="active" class="nav-link py-3 px-4 mb-2">
+        <i class="bi bi-clipboard2-pulse-fill me-3"></i> Medical Records
+      </a>
+      <a routerLink="/messages" routerLinkActive="active" class="nav-link py-3 px-4 mb-2">
+        <i class="bi bi-chat-dots-fill me-3"></i> Private Messages
+      </a>
+    </nav>
+  </aside>
 
-      <div class="sidebar-footer">
-          <div class="user-info-mini">
-              <i class="bi bi-person-circle"></i>
-              <div>
-                  <span class="username">{{ username }}</span>
-                  <span class="role-badge" [ngClass]="roleBadgeClass">{{ roleLabel }}</span>
+  <!-- Main Content Area -->
+  <div class="content-container" [class.w-100]="!isLoggedIn || isAuthPage">
+    <header class="top-header d-flex align-items-center justify-content-end px-4 shadow-sm" *ngIf="isLoggedIn && !isAuthPage">
+      <div class="user-controls d-flex align-items-center gap-4">
+        <div class="notifications dropdown">
+          <button class="btn border-0 position-relative p-0" (click)="toggleNotifDropdown($event)">
+            <i class="bi bi-bell fs-5 text-muted"></i>
+            <span class="badge rounded-circle bg-danger" *ngIf="notificationCount > 0">{{notificationCount}}</span>
+          </button>
+          
+          <div class="dropdown-menu dropdown-menu-end shadow-lg border-0 notification-dropdown py-0" [class.show]="showNotifDropdown">
+            <div class="dropdown-header p-3 border-bottom d-flex justify-content-between align-items-center">
+              <h6 class="mb-0 fw-bold">Notifications</h6>
+            </div>
+            
+            <div class="notification-list">
+              <!-- No Notifications -->
+              <div class="p-4 text-center text-muted" *ngIf="notifications.length === 0">
+                <i class="bi bi-check2-circle fs-2 d-block mb-2"></i>
+                <p class="small mb-0">All caught up!</p>
               </div>
+
+              <!-- Notification Items -->
+              <div class="notification-item p-3 border-bottom d-flex align-items-start gap-3" 
+                   *ngFor="let n of notifications" 
+                   (click)="handleNotificationClick(n)">
+                <div class="notif-icon" [ngClass]="n.type">
+                  <i class="bi" [ngClass]="n.type === 'message' ? 'bi-chat-dots' : 'bi-calendar-event'"></i>
+                </div>
+                <div class="notif-content overflow-hidden">
+                  <p class="mb-1 small fw-semibold text-dark text-truncate">{{n.title}}</p>
+                  <p class="mb-0 x-small text-muted text-truncate">{{n.description}}</p>
+                </div>
+              </div>
+            </div>
+            
+            <div class="dropdown-footer p-2 text-center" *ngIf="notifications.length > 0">
+              <button class="btn btn-link btn-sm text-decoration-none small" (click)="clearAllNotifications()">Clear All</button>
+            </div>
           </div>
+        </div>
+        <div class="user-profile d-flex align-items-center gap-3">
+          <div class="text-end">
+            <h6 class="mb-0 fw-bold">{{username}}</h6>
+            <span class="badge bg-primary-soft text-primary small fw-semibold">{{role}}</span>
+          </div>
+          <div class="avatar shadow-sm">{{username.charAt(0)}}</div>
+          <button class="btn btn-outline-danger btn-sm border-0 ms-2" (click)="logout()">
+            <i class="bi bi-box-arrow-right fs-5"></i>
+          </button>
+        </div>
       </div>
-  </nav>
+    </header>
 
-  <!-- Page Content -->
-  <div id="content">
-      <nav class="navbar navbar-expand-lg navbar-light bg-white rounded shadow-sm mb-4">
-          <div class="container-fluid">
-              <span class="navbar-brand mb-0 h1">
-                  <span class="page-role-label" [ngClass]="roleBadgeClass">{{ roleLabel }}</span>
-                  Panel
-              </span>
-              <div class="d-flex align-items-center">
-                  <span class="navbar-username me-3">
-                      <i class="bi bi-person-circle"></i> {{ username }}
-                  </span>
-                  <button class="btn btn-outline-danger btn-sm" (click)="logout()" id="logoutBtn">
-                      <i class="bi bi-box-arrow-right"></i> Logout
-                  </button>
-              </div>
-          </div>
-      </nav>
-
-      <!-- Main Router Outlet -->
-      <main class="fade-in">
-          <router-outlet></router-outlet>
-      </main>
+    <main class="page-content" [class.no-sidebar]="!isLoggedIn || isAuthPage">
+      <router-outlet></router-outlet>
+    </main>
   </div>
 </div>
-
-<!-- Login layout: no sidebar, just router outlet -->
-<ng-template #loginLayout>
-  <router-outlet></router-outlet>
-</ng-template>

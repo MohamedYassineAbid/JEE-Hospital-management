@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Router } from '@angular/router';
 import { ApiService } from '../services/api.service';
 import { AuthService } from '../services/auth.service';
 
@@ -12,34 +12,45 @@ import { AuthService } from '../services/auth.service';
   styleUrls: ['./dashboard.component.css']
 })
 export class DashboardComponent implements OnInit {
-  patientCount = 0;
-  medecinCount = 0;
-  rdvCount = 0;
-  consultationCount = 0;
+  stats: any = {
+    totalAppointments: 0,
+    pendingAppointments: 0,
+    completedConsultations: 0,
+    totalRecords: 0,
+    totalPatients: 0
+  };
+  
+  recentActivities: any[] = [];
+  username = '';
+  role = '';
 
-  constructor(private api: ApiService, public auth: AuthService) {}
-
-  get role(): string {
-    return this.auth.getRole();
-  }
-
-  get username(): string {
-    return this.auth.getUsername();
-  }
+  constructor(private api: ApiService, public auth: AuthService, private router: Router) {}
 
   ngOnInit(): void {
-    // Load stats based on role
-    if (this.role === 'ADMIN' || this.role === 'DOCTOR') {
-      this.api.getPatients(0, 1).subscribe(res => this.patientCount = res.totalElements);
-      this.api.getRendezVous(0, 1).subscribe(res => this.rdvCount = res.totalElements);
-      this.api.getConsultations(0, 1).subscribe(res => this.consultationCount = res.totalElements);
+    this.username = this.auth.getUsername() || 'Guest';
+    this.role = this.auth.getRole();
+    this.loadRealStats();
+  }
+
+  loadRealStats(): void {
+    if (this.role === 'DOCTOR') {
+      this.api.getDoctorStats(this.username).subscribe(data => {
+        this.stats = data;
+        this.recentActivities = data.recentActivities || [];
+      });
+    } else if (this.role === 'PATIENT') {
+      this.api.getPatientStats(this.username).subscribe(data => {
+        this.stats = data;
+      });
     }
-    if (this.role === 'ADMIN') {
-      this.api.getMedecins(0, 1).subscribe(res => this.medecinCount = res.totalElements);
-    }
-    if (this.role === 'PATIENT') {
-      this.api.getRendezVous(0, 1).subscribe(res => this.rdvCount = res.totalElements);
-      this.api.getConsultations(0, 1).subscribe(res => this.consultationCount = res.totalElements);
+  }
+
+  getActivityIcon(status: string): string {
+    switch (status) {
+      case 'DONE': return 'bi-check-circle-fill text-success';
+      case 'PENDING': return 'bi-clock-fill text-warning';
+      case 'CANCELED': return 'bi-x-circle-fill text-danger';
+      default: return 'bi-info-circle-fill text-primary';
     }
   }
 }

@@ -6,71 +6,92 @@ import ma.fss.security.entities.AppRole;
 import ma.fss.security.entities.AppUser;
 import ma.fss.security.repositories.AppRoleRepository;
 import ma.fss.security.repositories.AppUserRepository;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collection;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 
-@Service // annotation service
-@Slf4j //annotation lombok permet de donner un attribut qui s'appel log qui permet de logger
+@Service
+@Slf4j
 @AllArgsConstructor
-// pour des raison de security l'utilisation d'autowired n'est pas recommendé => utiliser un constructeur
-@Transactional //a la fin =>commit
+@Transactional
 public class SecurityServiceImpl implements SecurityService {
-    private AppUserRepository appUserReository;
+    private AppUserRepository appUserRepository;
     private AppRoleRepository appRoleRepository;
     private PasswordEncoder passwordEncoder;
 
     @Override
     public AppUser saveNewUser(String username, String password, String verifyPassword) {
-        if (!password.equals(verifyPassword)) throw new  RuntimeException("Mot de passe ne correspond pas");
-        String hashedPWD = passwordEncoder.encode(password); // hasher le mdp
+        if (!password.equals(verifyPassword)) throw new RuntimeException("Passwords do not match");
+        String hashedPWD = passwordEncoder.encode(password);
         AppUser appUser = new AppUser();
-        appUser.setUserId(UUID.randomUUID().toString()); //pour generer un id
-        //UUID => genere des chaines de caractere aleatoire qui depend de la date systeme
+        appUser.setUserId(UUID.randomUUID().toString());
         appUser.setUsername(username);
         appUser.setPassword(hashedPWD);
         appUser.setActive(true);
-        AppUser savedAppUser = appUserReository.save(appUser);
-        return savedAppUser;
+        return appUserRepository.save(appUser);
+    }
+
+    @Override
+    public AppUser saveNewUserWithRole(String username, String password, String verifyPassword, String roleName) {
+        AppUser user = saveNewUser(username, password, verifyPassword);
+        AppRole role = appRoleRepository.findByRoleName(roleName);
+        if (role == null) throw new RuntimeException("Role not found: " + roleName);
+        user.getAppRoles().add(role);
+        return user; // Hibernate will save the relationship automatically because of @Transactional
     }
 
     @Override
     public AppRole saveNewRole(String roleName, String description) {
-        AppRole appRole = appRoleRepository.findByRoleName(roleName); // verifie si le role exist deja
-        if (appRole != null) throw new RuntimeException("Role "+ roleName+" exist deja");
+        AppRole appRole = appRoleRepository.findByRoleName(roleName);
+        if (appRole != null) throw new RuntimeException("Role " + roleName + " already exists");
         appRole = new AppRole();
         appRole.setRoleName(roleName);
         appRole.setDescription(description);
-        AppRole savedAppRole = appRoleRepository.save(appRole);
-        return savedAppRole;
+        return appRoleRepository.save(appRole);
     }
-    @Override // affecter le role a l'utilisateur
-    public void addRoleToUser(String username, String roleName) {
-        AppUser appUser = appUserReository.findByUsername(username); // charger l'user
-        if (appUser == null) throw new RuntimeException("User not found");
-        AppRole appRole = appRoleRepository.findByRoleName(roleName); // charger le role
-        if (appRole == null) throw new RuntimeException("Role not found");
-        appUser.getAppRoles().add(appRole);// ajouter le role dans la collection des roles de appUser
-        appUserReository.save(appUser);// n'est pas necessaire
 
+    @Override
+    public void addRoleToUser(String username, String roleName) {
+        AppUser appUser = appUserRepository.findByUsername(username);
+        if (appUser == null) throw new RuntimeException("User not found");
+        AppRole appRole = appRoleRepository.findByRoleName(roleName);
+        if (appRole == null) throw new RuntimeException("Role not found");
+        appUser.getAppRoles().add(appRole);
     }
 
     @Override
     public void removeRoleFromUser(String username, String roleName) {
-        AppUser appUser = appUserReository.findByUsername(username); // charger l'user
+        AppUser appUser = appUserRepository.findByUsername(username);
         if (appUser == null) throw new RuntimeException("User not found");
-        AppRole appRole = appRoleRepository.findByRoleName(roleName); // charger le role
+        AppRole appRole = appRoleRepository.findByRoleName(roleName);
         if (appRole == null) throw new RuntimeException("Role not found");
-        appUser.getAppRoles().remove(appRole);// ajouter le role dans la collection des roles de appUser
+        appUser.getAppRoles().remove(appRole);
     }
 
+    @Override
+    public AppUser loadAppUserByUsername(String username) {
+        return appUserRepository.findByUsername(username);
+    }
 
     @Override
-    public AppUser loadUserByUsername(String username) {
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        AppUser appUser = appUserRepository.findByUsername(username);
+        if (appUser == null) throw new UsernameNotFoundException("User not found: " + username);
 
-        return appUserReository.findByUsername(username);
+        Collection<GrantedAuthority> authorities = appUser.getAppRoles().stream()
+                .map(role -> new SimpleGrantedAuthority(role.getRoleName()))
+                .collect(Collectors.toList());
+
+        return new User(appUser.getUsername(), appUser.getPassword(), authorities);
     }
 }

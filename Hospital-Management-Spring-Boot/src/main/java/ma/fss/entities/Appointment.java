@@ -1,6 +1,5 @@
 package ma.fss.entities;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -11,18 +10,22 @@ import java.util.Date;
 
 @Entity
 @Data @AllArgsConstructor @NoArgsConstructor
-public class RendezVous {
+public class Appointment {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    
     @Temporal(TemporalType.DATE)
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date date;
+    
+    private String session; 
+    
     @Enumerated(EnumType.STRING)
-    private  StatusRDV statusRDV;
+    private AppointmentStatus status;
+    
     @ManyToOne
-    @JsonProperty(access = JsonProperty.Access.READ_WRITE)
     private Patient patient;
+    
     @ManyToOne
-    private Medecin medecin;
-
+    private Doctor doctor;
 }

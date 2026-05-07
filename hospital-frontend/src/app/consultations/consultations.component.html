@@ -1,8 +1,8 @@
 <div class="container-fluid">
   <div class="d-flex justify-content-between align-items-center mb-4">
-    <h2><i class="bi bi-clipboard2-pulse text-danger"></i> Consultations</h2>
-    <button class="btn btn-primary" (click)="openModal()">
-      <i class="bi bi-plus-circle"></i> Ajouter
+    <h2><i class="bi bi-clipboard2-pulse text-danger"></i> Medical Records</h2>
+    <button class="btn btn-primary" (click)="openModal()" *ngIf="auth.getRole() === 'DOCTOR'">
+      <i class="bi bi-plus-circle"></i> Add Record
     </button>
   </div>
 
@@ -14,18 +14,18 @@
             <tr>
               <th>ID</th>
               <th>Date</th>
-              <th>Rendez-vous associé</th>
-              <th>Rapport</th>
-              <th class="text-end">Actions</th>
+              <th>Related Appointment</th>
+              <th>Medical Report</th>
+              <th class="text-end" *ngIf="auth.getRole() === 'DOCTOR'">Actions</th>
             </tr>
           </thead>
           <tbody>
             <tr *ngFor="let c of consultationsPage.content">
               <td>#{{c.id}}</td>
-              <td><strong>{{c.dateConsultation | date:'dd/MM/yyyy'}}</strong></td>
-              <td>RDV #{{c.rendezVous?.id || 'N/A'}}</td>
-              <td><span class="text-truncate d-inline-block" style="max-width: 250px;">{{c.rapport}}</span></td>
-              <td class="text-end">
+              <td><strong>{{c.consultationDate | date:'dd/MM/yyyy'}}</strong></td>
+              <td>Appointment #{{c.appointment?.id || 'N/A'}}</td>
+              <td><span class="text-truncate d-inline-block" style="max-width: 250px;">{{c.report}}</span></td>
+              <td class="text-end" *ngIf="auth.getRole() === 'DOCTOR'">
                 <button class="btn btn-sm btn-outline-info me-2" title="Edit" (click)="openModal(c)">
                   <i class="bi bi-pencil-square"></i>
                 </button>
@@ -38,17 +38,17 @@
         </table>
 
         <nav class="d-flex justify-content-between align-items-center mt-3">
-          <span class="text-muted small">Total: {{consultationsPage.totalElements}} consultations</span>
+          <span class="text-muted small">Total: {{consultationsPage.totalElements}} records</span>
           <ul class="pagination pagination-sm mb-0">
             <li class="page-item" [class.disabled]="currentPage === 0">
-               <a class="page-link" href="javascript:void(0)" (click)="changePage(currentPage - 1)">Précédent</a>
+               <a class="page-link" href="javascript:void(0)" (click)="changePage(currentPage - 1)">Previous</a>
             </li>
             <li class="page-item" *ngFor="let _ of [].constructor(consultationsPage.totalPages); let i = index" 
                 [class.active]="i === currentPage">
                <a class="page-link" href="javascript:void(0)" (click)="changePage(i)">{{i + 1}}</a>
             </li>
             <li class="page-item" [class.disabled]="currentPage === consultationsPage.totalPages - 1 || consultationsPage.totalPages === 0">
-               <a class="page-link" href="javascript:void(0)" (click)="changePage(currentPage + 1)">Suivant</a>
+               <a class="page-link" href="javascript:void(0)" (click)="changePage(currentPage + 1)">Next</a>
             </li>
           </ul>
         </nav>
@@ -57,7 +57,7 @@
       <ng-template #noData>
         <div class="text-center py-5 text-muted">
           <i class="bi bi-x-circle fs-1 d-block mb-3"></i>
-          <h5>Aucune consultation</h5>
+          <h5>No medical records found</h5>
         </div>
       </ng-template>
     </div>
@@ -69,31 +69,31 @@
     <div class="modal-content border-0 shadow-lg">
       <div class="modal-header bg-primary text-white">
         <h5 class="modal-title m-0">
-          <i class="bi bi-clipboard"></i> {{editingId ? 'Modifier Consultation' : 'Nouvelle Consultation'}}
+          <i class="bi bi-clipboard"></i> {{editingId ? 'Modify Medical Record' : 'New Medical Record'}}
         </h5>
         <button type="button" class="btn-close btn-close-white" (click)="closeModal()"></button>
       </div>
       <div class="modal-body p-4">
         <form [formGroup]="consultationForm" (ngSubmit)="saveConsultation()">
           <div class="mb-3">
-            <label class="form-label">Date de Consultation <span class="text-danger">*</span></label>
-            <input type="date" class="form-control" formControlName="dateConsultation">
+            <label class="form-label">Consultation Date <span class="text-danger">*</span></label>
+            <input type="date" class="form-control" formControlName="consultationDate">
           </div>
           <div class="mb-4">
-            <label class="form-label">Rapport <span class="text-danger">*</span></label>
-            <textarea class="form-control" rows="4" formControlName="rapport"></textarea>
+            <label class="form-label">Medical Report <span class="text-danger">*</span></label>
+            <textarea class="form-control" rows="4" formControlName="report" placeholder="Describe symptoms, diagnosis, and treatment..."></textarea>
           </div>
           <div class="mb-4">
-            <label class="form-label">Rendez-vous <span class="text-danger">*</span></label>
-            <select class="form-select" formControlName="rendezVousId">
-              <option value="">Sélectionnez un rendez-vous</option>
-              <option *ngFor="let r of rendezvousList" [value]="r.id">RDV #{{r.id}} ({{r.date | date:'dd/MM/yyyy'}})</option>
+            <label class="form-label">Related Appointment <span class="text-danger">*</span></label>
+            <select class="form-select" formControlName="appointmentId">
+              <option value="">Select an appointment</option>
+              <option *ngFor="let r of appointmentsList" [value]="r.id">Appt #{{r.id}} ({{r.date | date:'dd/MM/yyyy'}})</option>
             </select>
           </div>
           <div class="text-end">
-            <button type="button" class="btn btn-light border me-2" (click)="closeModal()">Annuler</button>
+            <button type="button" class="btn btn-light border me-2" (click)="closeModal()">Cancel</button>
             <button type="submit" class="btn btn-primary px-4" [disabled]="consultationForm.invalid">
-              <i class="bi bi-save me-1"></i> Enregistrer
+              <i class="bi bi-save me-1"></i> Save Record
             </button>
           </div>
         </form>

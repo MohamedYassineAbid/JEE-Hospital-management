@@ -6,20 +6,20 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.util.ArrayList;
-import java.util.List;
-
+import java.util.Collection;
 
 @Entity
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
+@Data @NoArgsConstructor @AllArgsConstructor
 public class AppUser {
     @Id
     private String userId;
-    @Column(unique = true)
+    
+    @Column(unique = true, length = 255)
     private String username;
+    
     private String password;
     private boolean active;
+    
     @ManyToMany(fetch = FetchType.EAGER)
-    private List<AppRole> appRoles = new ArrayList<>();
+    private Collection<AppRole> appRoles = new ArrayList<>();
 }

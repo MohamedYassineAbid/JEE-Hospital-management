@@ -1,107 +1,76 @@
-.welcome-header h2 {
-  font-weight: 700;
-  color: #1a1a2e;
+.text-info-custom {
+  color: #38bdf8; /* Sky blue */
 }
 
-/* Stat cards */
+.dashboard-banner {
+    background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+    padding: 3rem;
+    border-radius: 1.5rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.dashboard-banner::after {
+    content: '';
+    position: absolute;
+    right: -5%;
+    top: -20%;
+    width: 300px;
+    height: 300px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 50%;
+}
+
+.stat-bubble {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 1rem 1.5rem;
+    border-radius: 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    min-width: 120px;
+}
+
 .stat-card {
-  background: white;
-  border-radius: 14px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
-  overflow: hidden;
-  transition: transform 0.2s, box-shadow 0.2s;
-  border-top: 3px solid var(--accent);
+    background: white;
+    border-radius: 1.25rem;
+    border: 1px solid #f1f5f9;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .stat-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(0,0,0,0.04);
 }
 
-.stat-card-body {
-  padding: 22px 20px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+.icon-box {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
 }
 
-.stat-info h6 {
-  color: #888;
-  font-size: 0.8rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin-bottom: 6px;
+.bg-primary-soft { background: #eff6ff; }
+.bg-success-soft { background: #f0fdf4; }
+.bg-info-soft { background: #f0f9ff; }
+.bg-warning-soft { background: #fffbeb; }
+.bg-purple-soft { background: #faf5ff; }
+.text-purple { color: #9333ea; }
+
+.activity-card, .health-card {
+    background: white;
+    border-radius: 1.25rem;
+    border: 1px solid #f1f5f9;
 }
 
-.stat-info h2 {
-  font-size: 2rem;
-  font-weight: 800;
-  color: #1a1a2e;
-  margin: 0;
+.activity-item:last-child {
+    border-bottom: none !important;
 }
 
-.stat-icon {
-  width: 52px;
-  height: 52px;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.5rem;
-  background: color-mix(in srgb, var(--accent) 10%, transparent);
-  color: var(--accent);
+.activity-status i {
+    font-size: 1.2rem;
 }
 
-.stat-link {
-  display: block;
-  padding: 12px 20px;
-  background: #fafbfc;
-  color: var(--accent);
-  font-size: 0.82rem;
-  font-weight: 500;
-  text-decoration: none;
-  border-top: 1px solid #f0f0f0;
-  transition: background 0.15s;
-}
-
-.stat-link:hover {
-  background: #f0f4f8;
-}
-
-.stat-link i {
-  margin-left: 4px;
-  font-size: 0.75rem;
-}
-
-/* Welcome card */
-.welcome-card {
-  background: white;
-  border-radius: 14px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
-}
-
-.welcome-card-body {
-  padding: 40px;
-  text-align: center;
-}
-
-.welcome-icon {
-  font-size: 3rem;
-  color: #1a73e8;
-  opacity: 0.3;
-  display: block;
-  margin-bottom: 16px;
-}
-
-.welcome-card-body h3 {
-  font-weight: 700;
-  color: #1a1a2e;
-  margin-bottom: 8px;
-}
-
-.welcome-card-body p {
-  max-width: 500px;
-  margin: 0 auto;
-  font-size: 0.92rem;
+.progress-bar {
+    border-radius: 3px;
 }

@@ -1,111 +1,158 @@
-<div class="login-page">
-  <div class="login-container">
-    <!-- Left side: branding -->
-    <div class="login-branding">
-      <div class="branding-content">
-        <i class="bi bi-hospital"></i>
-        <h1>Hospital MS</h1>
-        <p>Management System</p>
-        <div class="branding-features">
-          <div class="feature-item">
-            <i class="bi bi-shield-check"></i>
-            <span>Secure Access</span>
-          </div>
-          <div class="feature-item">
-            <i class="bi bi-people"></i>
-            <span>Multi-Role Support</span>
-          </div>
-          <div class="feature-item">
-            <i class="bi bi-graph-up"></i>
-            <span>Real-time Dashboard</span>
-          </div>
-        </div>
-      </div>
+<div class="auth-page">
+  <div class="auth-container glass-card">
+    
+    <div class="auth-branding">
+       <div class="logo-wrapper mb-4">
+         <div class="pulse-container">
+           <svg viewBox="0 0 24 24" class="pulse-svg">
+             <path d="M2 12h3l2-5 4 10 2-5h3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+           </svg>
+         </div>
+         <span class="logo-text">Dar Ettabib</span>
+       </div>
+       <div class="branding-content" *ngIf="isLoginMode" [@fadeTransition]>
+         <h1>Welcome!</h1>
+         <p>Access your Healing Center portal and manage your health journey securely.</p>
+         <button class="btn btn-outline-light px-4" (click)="toggleMode()">Need an account? Sign Up</button>
+       </div>
+       <div class="branding-content" *ngIf="!isLoginMode" [@fadeTransition]>
+         <h1>Join Us</h1>
+         <p>Register as a medical professional or patient to join our Healing Center.</p>
+         <button class="btn btn-outline-light px-4" (click)="toggleMode()">Already registered? Sign In</button>
+       </div>
     </div>
 
-    <!-- Right side: login form -->
-    <div class="login-form-wrapper">
-      <div class="login-form-inner">
-        <div class="form-header">
-          <h2>Welcome Back</h2>
-          <p class="text-muted">Sign in to your account</p>
-        </div>
+    <div class="auth-forms">
+      <!-- Login Form -->
+      <div class="form-wrapper" *ngIf="isLoginMode" [@fadeTransition]>
+        <h2>Sign In</h2>
 
-        <!-- Error Alert -->
-        <div class="alert alert-danger d-flex align-items-center" *ngIf="errorMessage">
+        <!-- Auth Error Alert -->
+        <div class="alert alert-danger d-flex align-items-center mb-3" *ngIf="authError" [@fadeTransition]>
           <i class="bi bi-exclamation-triangle-fill me-2"></i>
-          <span>{{ errorMessage }}</span>
+          <div>{{ authError }}</div>
         </div>
 
-        <form (ngSubmit)="onLogin()" class="login-form">
-          <div class="form-group">
-            <label for="username" class="form-label">
-              <i class="bi bi-person"></i> Username
-            </label>
-            <input
-              type="text"
-              id="username"
-              class="form-control form-control-lg"
-              placeholder="Enter your username"
-              [(ngModel)]="username"
-              name="username"
-              autocomplete="username"
-              [disabled]="isLoading"
-            >
+        <form (ngSubmit)="onLogin()">
+          <div class="form-group mb-3">
+            <label>Username</label>
+            <input type="text" class="form-control" [(ngModel)]="loginData.username" name="username">
           </div>
-
-          <div class="form-group">
-            <label for="password" class="form-label">
-              <i class="bi bi-lock"></i> Password
-            </label>
-            <input
-              type="password"
-              id="password"
-              class="form-control form-control-lg"
-              placeholder="Enter your password"
-              [(ngModel)]="password"
-              name="password"
-              autocomplete="current-password"
-              [disabled]="isLoading"
-            >
+          <div class="form-group mb-4">
+            <label>Password</label>
+            <input type="password" class="form-control" [(ngModel)]="loginData.password" name="password">
           </div>
-
-          <button
-            type="submit"
-            class="btn btn-primary btn-lg w-100 login-btn"
-            [disabled]="isLoading"
-          >
-            <span *ngIf="!isLoading">
-              <i class="bi bi-box-arrow-in-right me-2"></i>Sign In
-            </span>
-            <span *ngIf="isLoading">
-              <span class="spinner-border spinner-border-sm me-2" role="status"></span>
-              Signing in...
-            </span>
+          <button type="submit" class="btn btn-primary w-100" [disabled]="isLoading">
+            {{ isLoading ? 'Verifying...' : 'Sign In' }}
           </button>
         </form>
+      </div>
 
-        <div class="demo-accounts">
-          <p class="demo-title"><i class="bi bi-info-circle"></i> Demo Accounts</p>
-          <div class="demo-grid">
-            <div class="demo-card" (click)="username='admin'; password='admin123'">
-              <i class="bi bi-shield-lock-fill text-primary"></i>
-              <strong>Admin</strong>
-              <small>admin / admin123</small>
+      <!-- Sign Up Form -->
+      <div class="form-wrapper signup-form" *ngIf="!isLoginMode" [@fadeTransition]>
+        <h2>Create Account</h2>
+
+        <!-- Auth Error Alert -->
+        <div class="alert alert-danger d-flex align-items-center mb-3" *ngIf="authError" [@fadeTransition]>
+          <i class="bi bi-exclamation-triangle-fill me-2"></i>
+          <div>{{ authError }}</div>
+        </div>
+
+        <form (ngSubmit)="onSignUp()">
+          <!-- Common Fields -->
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <label>Full Name</label>
+              <input type="text" class="form-control" [(ngModel)]="signupData.name" name="name" placeholder="e.g. Amina Tazi">
             </div>
-            <div class="demo-card" (click)="username='doctor'; password='doctor123'">
-              <i class="bi bi-heart-pulse-fill text-success"></i>
-              <strong>Doctor</strong>
-              <small>doctor / doctor123</small>
-            </div>
-            <div class="demo-card" (click)="username='patient'; password='patient123'">
-              <i class="bi bi-person-fill text-info"></i>
-              <strong>Patient</strong>
-              <small>patient / patient123</small>
+            <div class="col-md-6">
+              <label>Username</label>
+              <input type="text" class="form-control" [(ngModel)]="signupData.username" name="username" placeholder="Choose a username">
             </div>
           </div>
-        </div>
+          
+          <div class="row mb-3">
+            <div class="col">
+              <label>Password</label>
+              <input type="password" class="form-control" [(ngModel)]="signupData.password" name="password">
+            </div>
+            <div class="col">
+              <label>Confirm</label>
+              <input type="password" class="form-control" [(ngModel)]="signupData.confirmPassword" name="confirm">
+            </div>
+          </div>
+
+          <!-- Role Picker -->
+          <div class="form-group mb-3">
+            <label class="d-block mb-2">Account Type</label>
+            <div class="role-picker">
+              <label class="role-option" [class.selected]="signupData.role === 'PATIENT'">
+                <input type="radio" name="role" value="PATIENT" [(ngModel)]="signupData.role">
+                <i class="bi bi-person"></i> Patient
+              </label>
+              <label class="role-option" [class.selected]="signupData.role === 'DOCTOR'">
+                <input type="radio" name="role" value="DOCTOR" [(ngModel)]="signupData.role">
+                <i class="bi bi-person-badge"></i> Doctor
+              </label>
+            </div>
+          </div>
+
+          <!-- ===== PATIENT FIELDS ===== -->
+          <div *ngIf="signupData.role === 'PATIENT'" class="role-fields" [@fadeTransition]>
+            <div class="form-group mb-3">
+              <label><i class="bi bi-card-text"></i> CIN (National ID)</label>
+              <input type="text" class="form-control" [(ngModel)]="signupData.cin" name="cin" placeholder="e.g. AE123456">
+            </div>
+          </div>
+
+          <!-- ===== DOCTOR FIELDS ===== -->
+          <div *ngIf="signupData.role === 'DOCTOR'" class="role-fields" [@fadeTransition]>
+            <div class="form-group mb-3">
+              <label><i class="bi bi-key"></i> Secret Key</label>
+              <input type="text" class="form-control" [(ngModel)]="signupData.secretKey" name="secretKey" placeholder="Enter your verification key">
+              <small class="text-muted">Provided by the Healing Center administration</small>
+            </div>
+
+            <div class="form-group mb-3">
+              <label><i class="bi bi-heart-pulse"></i> Specialty</label>
+              <select class="form-control" [(ngModel)]="signupData.specialty" name="specialty">
+                <option value="" disabled>Select your specialty</option>
+                <option *ngFor="let s of specialities" [value]="s">{{ s }}</option>
+              </select>
+            </div>
+
+            <div class="row mb-3">
+              <div class="col">
+                <label><i class="bi bi-sunrise"></i> Morning Slots</label>
+                <input type="number" class="form-control" [(ngModel)]="signupData.morningCapacity" name="morningCap" min="1" max="20">
+                <small class="text-muted">8h - 12h</small>
+              </div>
+              <div class="col">
+                <label><i class="bi bi-sunset"></i> Afternoon Slots</label>
+                <input type="number" class="form-control" [(ngModel)]="signupData.afternoonCapacity" name="afternoonCap" min="1" max="20">
+                <small class="text-muted">14h - 16h</small>
+              </div>
+            </div>
+
+            <div class="form-group mb-3">
+              <label><i class="bi bi-calendar-x"></i> Day Off</label>
+              <select class="form-control" [(ngModel)]="signupData.dayOff" name="dayOff">
+                <option *ngFor="let d of daysOfWeek" [value]="d">{{ d }}</option>
+              </select>
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-success w-100 mt-2" [disabled]="isLoading">
+             {{ isLoading ? 'Registering...' : 'Register Now' }}
+          </button>
+        </form>
       </div>
     </div>
+
+  </div>
+  <div class="mt-4">
+    <a routerLink="/home" class="text-white-50 text-decoration-none">
+       <i class="bi bi-arrow-left"></i> Back to Landing Page
+    </a>
   </div>
 </div>

@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
-import java.util.Collection;
 import java.util.Date;
 
 @Entity
@@ -16,12 +15,14 @@ import java.util.Date;
 public class Consultation {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    
     @Temporal(TemporalType.DATE)
     @DateTimeFormat(pattern = "yyyy-MM-dd")
-    private Date dateConsultation;
-    private String rapport;
+    private Date consultationDate;
+    
+    private String report;
+    
     @OneToOne
     @JsonProperty(access = JsonProperty.Access.READ_WRITE)
-    private RendezVous rendezVous;
-
+    private Appointment appointment;
 }

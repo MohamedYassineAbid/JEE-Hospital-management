@@ -1,8 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { ApiService } from '../services/api.service';
-import { Patient, PageResponse } from '../models/patient.model';
+import { ApiService, PageResponse } from '../services/api.service';
+import { Patient } from '../models/patient.model';
+import { ToastService } from '../services/toast.service';
 
 @Component({
   selector: 'app-patients',
@@ -21,7 +22,11 @@ export class PatientsComponent implements OnInit {
   showModal = false;
   editingId?: number;
 
-  constructor(private apiService: ApiService, private fb: FormBuilder) {
+  constructor(
+    private apiService: ApiService, 
+    private fb: FormBuilder,
+    private toast: ToastService
+  ) {
     this.initForm();
   }
 
@@ -31,20 +36,18 @@ export class PatientsComponent implements OnInit {
 
   initForm(): void {
     this.patientForm = this.fb.group({
-      nom: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(10)]],
-      dateNaissance: ['', Validators.required],
-      malade: [false],
-      adresse: [''],
-      codePostal: [''],
-      numeroTelephone: [''],
-      titre: ['Mr']
+      name: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(20)]],
+      birthDate: ['', Validators.required],
+      sick: [false],
+      address: [''],
+      phoneNumber: ['']
     });
   }
 
   loadPatients(): void {
     this.apiService.getPatients(this.currentPage, this.pageSize, this.keyword).subscribe({
       next: (data) => this.patientsPage = data,
-      error: (err) => console.error(err)
+      error: (err) => this.toast.error('Failed to load patients')
     });
   }
 
@@ -62,17 +65,16 @@ export class PatientsComponent implements OnInit {
     this.showModal = true;
     if (patient) {
       this.editingId = patient.id;
-      // Format date for date input
-      const d = new Date(patient.dateNaissance);
+      const d = new Date(patient.birthDate);
       const strDate = d.toISOString().split('T')[0];
       
       this.patientForm.patchValue({
         ...patient,
-        dateNaissance: strDate
+        birthDate: strDate
       });
     } else {
       this.editingId = undefined;
-      this.patientForm.reset({ malade: false, titre: 'Mr' });
+      this.patientForm.reset({ sick: false });
     }
   }
 
@@ -90,18 +92,24 @@ export class PatientsComponent implements OnInit {
 
     this.apiService.savePatient(patientData).subscribe({
       next: () => {
+        this.toast.success('Patient saved successfully');
         this.closeModal();
         this.loadPatients();
       },
-      error: (err) => console.error('Error saving patient', err)
+      error: (err) => {
+        this.toast.error(err.error?.message || 'Error saving patient');
+      }
     });
   }
 
   deletePatient(id: number): void {
-    if (confirm('Êtes-vous sûr de vouloir supprimer ce patient ?')) {
+    if (confirm('Are you sure you want to delete this patient?')) {
       this.apiService.deletePatient(id).subscribe({
-        next: () => this.loadPatients(),
-        error: (err) => console.error('Error deleting patient', err)
+        next: () => {
+          this.toast.success('Patient deleted');
+          this.loadPatients();
+        },
+        error: (err) => this.toast.error('Error deleting patient')
       });
     }
   }

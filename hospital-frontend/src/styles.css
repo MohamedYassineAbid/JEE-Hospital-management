@@ -1,10 +1,12 @@
 @import 'bootstrap/dist/css/bootstrap.min.css';
 @import 'bootstrap-icons/font/bootstrap-icons.css';
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap');
 
 :root {
-  --primary-color: #1a73e8;
-  --secondary-color: #6c757d;
-  --bg-color: #f5f7fa;
+  --primary-color: #38bdf8;
+  --secondary-color: #818cf8;
+  --bg-dark: #0f172a;
+  --bg-light: #f8fafc;
   --sidebar-width: 255px;
 }
 
@@ -13,124 +15,106 @@
 }
 
 body {
-  background-color: var(--bg-color);
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background-color: var(--bg-light);
+  font-family: 'Inter', sans-serif;
   overflow-x: hidden;
-  color: #333;
+  color: #1e293b;
 }
 
-/* Cards */
+h1, h2, h3, .logo-text {
+  font-family: 'Outfit', sans-serif;
+}
+
+/* Sidebar Styling */
+#sidebar {
+  min-width: var(--sidebar-width);
+  max-width: var(--sidebar-width);
+  background: var(--bg-dark);
+  color: #fff;
+  transition: all 0.3s;
+  height: 100vh;
+  position: fixed;
+}
+
+.sidebar-header {
+  padding: 20px;
+  background: rgba(255,255,255,0.05);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.sidebar-header i {
+  font-size: 1.5rem;
+  color: var(--primary-color);
+}
+
+#sidebar ul li a {
+  padding: 15px 20px;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #94a3b8;
+  text-decoration: none;
+  transition: all 0.3s;
+}
+
+#sidebar ul li a:hover, #sidebar ul li a.active {
+  color: #fff;
+  background: rgba(255,255,255,0.1);
+  border-left: 4px solid var(--primary-color);
+}
+
+/* Content Area */
+.wrapper {
+  display: flex;
+  width: 100%;
+  align-items: stretch;
+}
+
+#content {
+  width: calc(100% - var(--sidebar-width));
+  padding: 30px;
+  min-height: 100vh;
+  margin-left: var(--sidebar-width);
+  background: #f1f5f9;
+}
+
+/* Cards & Components */
 .card {
-  border-radius: 12px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+  border-radius: 20px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   border: none;
-  margin-bottom: 20px;
-  transition: box-shadow 0.2s;
 }
 
-.card:hover {
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
-}
+.badge-admin { background: #ef4444; color: white; }
+.badge-doctor { background: #10b981; color: white; }
+.badge-patient { background: #3b82f6; color: white; }
 
-/* Tables */
-.table th {
-  font-weight: 600;
-  color: #495057;
-  font-size: 0.85rem;
-  text-transform: uppercase;
-  letter-spacing: 0.3px;
-}
-
-.table td {
-  font-size: 0.92rem;
-  vertical-align: middle;
-}
-
-.table-hover tbody tr:hover {
-  background-color: #f0f6ff;
-}
-
-/* Buttons */
 .btn {
-  border-radius: 8px;
-  font-weight: 500;
+  border-radius: 12px;
+  padding: 0.6rem 1.2rem;
+  font-weight: 600;
   transition: all 0.2s;
 }
 
 .btn-primary {
-  background: #1a73e8;
-  border-color: #1a73e8;
+  background: var(--bg-dark);
+  border: none;
 }
 
 .btn-primary:hover {
-  background: #1557b0;
-  border-color: #1557b0;
-  transform: translateY(-1px);
+  background: #1e293b;
+  transform: translateY(-2px);
 }
 
-.btn-outline-primary {
-  color: #1a73e8;
-  border-color: #1a73e8;
-}
-
-.btn-outline-primary:hover {
-  background: #1a73e8;
-  border-color: #1a73e8;
-}
-
-/* Form controls */
-.form-control, .form-select {
-  border-radius: 8px;
-  border: 1.5px solid #dee2e6;
-  transition: border-color 0.2s, box-shadow 0.2s;
-}
-
-.form-control:focus, .form-select:focus {
-  border-color: #1a73e8;
-  box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.1);
-}
-
-/* Badges */
-.badge {
-  font-weight: 500;
-  font-size: 0.75rem;
-  padding: 5px 10px;
-  border-radius: 6px;
-}
-
-/* Modals */
-.modal-content {
-  border-radius: 14px;
-}
-
-.modal-header {
-  border-radius: 14px 14px 0 0;
-}
-
-/* Page transitions */
+/* Animations */
 .fade-in {
-  animation: fadeIn 0.3s ease-in-out;
+  animation: fadeIn 0.5s ease-out;
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(8px); }
+  from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
-}
-
-/* Scrollbar */
-::-webkit-scrollbar {
-  width: 6px;
-}
-
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #ccc;
-  border-radius: 3px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #aaa;
 }

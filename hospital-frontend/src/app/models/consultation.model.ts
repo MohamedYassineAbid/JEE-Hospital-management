@@ -1,8 +1,9 @@
-import { RendezVous } from './rendezvous.model';
+import { Appointment } from "./appointment.model";
 
 export interface Consultation {
     id?: number;
-    dateConsultation: Date | string;
-    rapport: string;
-    rendezVous?: RendezVous;
+    consultationDate: string;
+    report: string;
+    appointment?: Appointment;
+    appointmentId?: number;
 }

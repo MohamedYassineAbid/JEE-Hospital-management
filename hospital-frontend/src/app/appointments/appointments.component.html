@@ -1,0 +1,172 @@
+<div class="container-fluid">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="bi bi-calendar-check text-warning"></i> Appointments</h2>
+    <button class="btn btn-primary" (click)="openModal()" *ngIf="auth.getRole() === 'PATIENT' || auth.getRole() === 'ADMIN'">
+      <i class="bi bi-plus-circle"></i> New Appointment
+    </button>
+  </div>
+
+  <div class="card shadow-sm border-0">
+    <div class="card-body">
+      <div class="table-responsive" *ngIf="appointmentPage && appointmentPage.content.length > 0; else noData">
+        <table class="table table-hover align-middle">
+          <thead class="table-light">
+            <tr>
+              <th class="py-3 px-4">ID</th>
+              <th class="py-3">Date</th>
+              <th class="py-3">Session</th>
+              <th class="py-3">Status</th>
+              <th class="py-3">Patient</th>
+              <th class="py-3">Doctor</th>
+              <th class="py-3 px-4 text-end">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let r of appointmentPage.content" class="border-bottom">
+              <td class="px-4 text-muted small">#{{r.id}}</td>
+              <td><strong>{{r.date | date:'dd/MM/yyyy'}}</strong></td>
+              <td><span class="badge bg-light text-dark border">{{r.session}}</span></td>
+              <td><span class="badge" [ngClass]="getStatusClass(r.status)">{{r.status}}</span></td>
+              <td>{{r.patient?.name || 'N/A'}}</td>
+              <td>{{r.doctor?.name || 'N/A'}}</td>
+              <td class="text-end">
+                <div class="d-flex justify-content-end gap-2">
+                  <!-- End Consultation (Doctor Only) -->
+                  <button class="btn btn-sm btn-success d-flex align-items-center gap-1" 
+                          *ngIf="auth.getRole() === 'DOCTOR' && r.status === 'PENDING'"
+                          (click)="openCompleteModal(r)">
+                    <i class="bi bi-check2-circle"></i> <span>End Consultation</span>
+                  </button>
+
+                  <!-- Edit (Admin/Doctor Only) -->
+                  <button class="btn btn-sm btn-light border text-primary" title="Edit" (click)="openModal(r)" 
+                          *ngIf="auth.getRole() === 'DOCTOR' || auth.getRole() === 'ADMIN'">
+                    <i class="bi bi-pencil-square"></i>
+                  </button>
+
+                  <!-- Delete (Everyone) -->
+                  <button class="btn btn-sm btn-light border text-danger" title="Delete" (click)="deleteAppointment(r.id!)">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- Pagination (existing) -->
+        <nav class="d-flex justify-content-between align-middle mt-3" *ngIf="appointmentPage">
+            <span class="text-muted small">Showing {{appointmentPage.content.length}} of {{appointmentPage.totalElements}}</span>
+            <ul class="pagination pagination-sm mb-0">
+                <li class="page-item" [class.disabled]="currentPage === 0">
+                    <a class="page-link" (click)="changePage(currentPage - 1)">Previous</a>
+                </li>
+                <li class="page-item" *ngFor="let _ of [].constructor(appointmentPage.totalPages); let i = index" [class.active]="i === currentPage">
+                    <a class="page-link" (click)="changePage(i)">{{i + 1}}</a>
+                </li>
+                <li class="page-item" [class.disabled]="currentPage === appointmentPage.totalPages - 1">
+                    <a class="page-link" (click)="changePage(currentPage + 1)">Next</a>
+                </li>
+            </ul>
+        </nav>
+      </div>
+
+      <ng-template #noData>
+        <div class="text-center py-5 text-muted">
+          <i class="bi bi-calendar-x fs-1 d-block mb-3"></i>
+          <h5>No appointments found</h5>
+        </div>
+      </ng-template>
+    </div>
+  </div>
+</div>
+
+<!-- Standard Modal (existing with tweaks) -->
+<div class="modal" tabindex="-1" [class.show]="showModal" [style.display]="showModal ? 'block' : 'none'" style="background: rgba(0,0,0,0.5)">
+  <div class="modal-dialog">
+    <div class="modal-content border-0 shadow-lg">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title m-0">
+          <i class="bi bi-calendar-event"></i> {{editingId ? 'Modify Appointment' : 'New Appointment'}}
+        </h5>
+        <button type="button" class="btn-close btn-close-white" (click)="closeModal()"></button>
+      </div>
+      <div class="modal-body p-4">
+        <form [formGroup]="appointmentForm" (ngSubmit)="saveAppointment()">
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Date</label>
+              <input type="date" class="form-control" formControlName="date">
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Session</label>
+              <select class="form-select" formControlName="session">
+                <option value="MORNING">Morning</option>
+                <option value="AFTERNOON">Afternoon</option>
+              </select>
+            </div>
+          </div>
+          <div class="mb-3" *ngIf="auth.getRole() !== 'PATIENT'">
+            <label class="form-label">Status</label>
+            <select class="form-select" formControlName="status">
+              <option value="PENDING">Pending</option>
+              <option value="DONE">Completed</option>
+              <option value="CANCELED">Canceled</option>
+            </select>
+          </div>
+          <div class="mb-3" *ngIf="auth.getRole() === 'ADMIN'">
+            <label class="form-label">Patient</label>
+            <select class="form-select" formControlName="patientId">
+                <option value="">Select a patient</option>
+                <option *ngFor="let p of patients" [value]="p.id">{{p.name}}</option>
+            </select>
+          </div>
+          <div class="mb-4">
+            <label class="form-label">Doctor</label>
+            <select class="form-select" formControlName="doctorId">
+                <option value="">Select a doctor</option>
+                <option *ngFor="let d of doctors" [value]="d.id">{{d.name}} ({{d.specialty}})</option>
+            </select>
+          </div>
+          <div class="text-end">
+            <button type="button" class="btn btn-light border me-2" (click)="closeModal()">Cancel</button>
+            <button type="submit" class="btn btn-primary px-4">Save</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PROFESSIONAL FLOW MODAL: End Consultation -->
+<div class="modal" tabindex="-1" [class.show]="showCompleteModal" [style.display]="showCompleteModal ? 'block' : 'none'" style="background: rgba(0,0,0,0.5)">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content border-0 shadow-lg">
+      <div class="modal-header bg-success text-white">
+        <h5 class="modal-title m-0">
+          <i class="bi bi-clipboard2-pulse"></i> Finalize Consultation & Medical Record
+        </h5>
+        <button type="button" class="btn-close btn-close-white" (click)="closeCompleteModal()"></button>
+      </div>
+      <div class="modal-body p-4">
+        <div class="alert alert-info py-2 small mb-3">
+            Ending appointment for <strong>{{selectedAppointment?.patient?.name}}</strong> on {{selectedAppointment?.date | date}}.
+        </div>
+        <form [formGroup]="completeForm" (ngSubmit)="confirmComplete()">
+          <div class="mb-3">
+            <label class="form-label fw-bold text-primary">Clinical Report / Prescription</label>
+            <textarea class="form-control" rows="8" formControlName="report" 
+                      placeholder="Enter detailed clinical findings, diagnosis, and prescription details..."></textarea>
+            <div class="form-text">Minimum 10 characters required for a valid medical record.</div>
+          </div>
+          <div class="text-end mt-4">
+            <button type="button" class="btn btn-light border me-2" (click)="closeCompleteModal()">Cancel</button>
+            <button type="submit" class="btn btn-success px-5" [disabled]="completeForm.invalid">
+              <i class="bi bi-check-all me-1"></i> Save Record & Complete Appointment
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

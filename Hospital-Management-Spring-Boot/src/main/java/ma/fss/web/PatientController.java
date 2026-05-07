@@ -21,7 +21,7 @@ public class PatientController {
             @RequestParam(name = "page", defaultValue = "0") int page,
             @RequestParam(name = "size", defaultValue = "5") int size,
             @RequestParam(name = "keyword", defaultValue = "") String keyword) {
-        return patientRepository.findByNomContains(keyword, PageRequest.of(page, size));
+        return patientRepository.findByNameContains(keyword, PageRequest.of(page, size));
     }
 
     @GetMapping("/{id}")
